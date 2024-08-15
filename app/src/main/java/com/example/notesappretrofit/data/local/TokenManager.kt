@@ -13,10 +13,10 @@ class TokenManager @Inject constructor(
     fun saveToken(token:String){
         prefs.edit().putString(TOKEN_KEY,token).apply()
     }
-    fun getToken(token:String){
+    fun getToken(){
         prefs.getString(TOKEN_KEY,null)
     }
-    fun clearToken(token:String){
-        prefs.edit().remove(TOKEN_KEY)
+    fun clearToken(){
+        prefs.edit().remove(TOKEN_KEY).apply()
     }
 }
