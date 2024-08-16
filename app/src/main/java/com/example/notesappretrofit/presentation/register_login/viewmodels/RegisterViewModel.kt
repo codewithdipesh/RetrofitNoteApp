@@ -11,6 +11,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -22,6 +23,29 @@ class RegisterLoginViewModel @Inject constructor(
 {
    private val _authState = MutableStateFlow<UiState<Boolean>>(UiState.Initial)
    val authState :StateFlow<UiState<Boolean>> = _authState.asStateFlow()
+
+    private val _formState = MutableStateFlow<AuthFormState>(AuthFormState())
+    val formState :StateFlow<AuthFormState> = _formState.asStateFlow()
+
+
+    // Update form state functions
+    fun updateLoginUsername(username: String) {
+        _formState.update { it.copy(loginUsername = username) }
+    }
+
+    fun updateLoginPassword(password: String) {
+        _formState.update { it.copy(loginPassword = password) }
+    }
+
+    fun updateRegisterUsername(username: String) {
+        _formState.update { it.copy(registerUsername = username) }
+    }
+
+    fun updateRegisterPassword(password: String) {
+        _formState.update { it.copy(registerPassword = password) }
+    }
+
+
 
    fun register(username : String , password :String){
        viewModelScope.launch {
