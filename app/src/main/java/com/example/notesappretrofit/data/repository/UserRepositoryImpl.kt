@@ -2,6 +2,7 @@ package com.example.notesappretrofit.data.repository
 
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresExtension
 import com.example.notesappretrofit.data.local.TokenManager
 import com.example.notesappretrofit.data.remote.note.dto.GetAllNotesResponse
@@ -9,6 +10,7 @@ import com.example.notesappretrofit.data.remote.note.dto.NoteCreateResponse
 import com.example.notesappretrofit.data.remote.note.dto.NoteRequest
 import com.example.notesappretrofit.data.remote.note.dto.NoteUpdatedDeletedResponse
 import com.example.notesappretrofit.data.remote.user.UserApi
+import com.example.notesappretrofit.data.remote.user.dto.AuthenticateResponse
 import com.example.notesappretrofit.data.remote.user.dto.UserChangePassResponse
 import com.example.notesappretrofit.data.remote.user.dto.UserChangePasswordRequest
 import com.example.notesappretrofit.data.remote.user.dto.UserLoginRegisterRequest
@@ -34,6 +36,7 @@ import javax.inject.Inject
 
         return try {
             val result =  api.register(request)
+            Log.d("result", result.toString())
             if(result.status != 200){
                 //explicitly throw exception
                 throw HttpException(Response.error<Any>(result.status, ResponseBody.create(null,"")))
@@ -43,8 +46,8 @@ import javax.inject.Inject
             Result.Success(true)
 
        }catch (e: IOException){
-           //No Internet
-          Result.Error(UserError.NETWORK_ERROR)
+            Log.d("NetworkError", "Network error occurred: ${e.localizedMessage}")
+            Result.Error(UserError.NETWORK_ERROR)
        }catch (e : HttpException){
            when(e.code()){
                //Custom Error from Backend
@@ -109,8 +112,31 @@ import javax.inject.Inject
          }
      }
 
-
+     override suspend fun authenticate(): Result<Boolean, UserError> {
+         return try{
+             val result = api.authenticate()
+             if(result.status != 200){
+                 //explicitly throw exception
+                 throw HttpException(Response.error<Any>(result.status, ResponseBody.create(null,"")))
+             }
+             Result.Success(true)
+         }catch (e: IOException){
+             //No Internet
+             Result.Error(UserError.NETWORK_ERROR)
+         }catch (e : HttpException){
+             when(e.code()){
+                 //Custom Error from Backend
+                 401,403->Result.Error(UserError.UNAUTHORIZED)
+                 500 -> Result.Error(UserError.SERVER_ERROR)
+                 else -> Result.Error(UserError.UNKNOWN_ERROR)
+             }
+         }catch(e:Exception){
+             Result.Error(UserError.UNKNOWN_ERROR)
+         }
      }
+
+
+ }
 
 
 

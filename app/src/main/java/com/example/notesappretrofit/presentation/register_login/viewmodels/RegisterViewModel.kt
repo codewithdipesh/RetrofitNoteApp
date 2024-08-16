@@ -27,6 +27,8 @@ class RegisterLoginViewModel @Inject constructor(
     private val _formState = MutableStateFlow<AuthFormState>(AuthFormState())
     val formState :StateFlow<AuthFormState> = _formState.asStateFlow()
 
+    private val _isAuthorized = MutableStateFlow<Boolean>(false)
+    val isAuthorized :StateFlow<Boolean> = _isAuthorized.asStateFlow()
 
     // Update form state functions
     fun updateLoginUsername(username: String) {
@@ -45,6 +47,10 @@ class RegisterLoginViewModel @Inject constructor(
         _formState.update { it.copy(registerPassword = password) }
     }
 
+    init {
+        checkAuthorization()
+    }
+
 
 
    fun register(username : String , password :String){
@@ -54,6 +60,7 @@ class RegisterLoginViewModel @Inject constructor(
            when(val result = repository.register(request)){
                is Result.Success ->{
                    _authState.value = UiState.Success(true)
+                   _isAuthorized.value = true
                }
                is Result.Error -> {
                    _authState.value = UiState.Error(mapUserErrorToMessage(result.error))
@@ -69,6 +76,7 @@ class RegisterLoginViewModel @Inject constructor(
             when(val result = repository.login(request)){
                 is Result.Success ->{
                     _authState.value = UiState.Success(true)
+                    _isAuthorized.value = true
                 }
                 is Result.Error -> {
                     _authState.value = UiState.Error(mapUserErrorToMessage(result.error))
@@ -81,6 +89,23 @@ class RegisterLoginViewModel @Inject constructor(
         //cleared authentication token
         tokenManager.clearToken()
         _authState.value = UiState.Initial
+        _isAuthorized.value = false
+    }
+
+    fun checkAuthorization() {
+        viewModelScope.launch {
+            _authState.value = UiState.Loading
+            when(val result = repository.authenticate()){
+                is Result.Success->{
+                    _isAuthorized.value = result.data
+                    _authState.value = UiState.Initial
+                }
+                is Result.Error ->{
+                    _isAuthorized.value = false
+                    _authState.value = UiState.Initial
+                }
+            }
+        }
     }
 
 
