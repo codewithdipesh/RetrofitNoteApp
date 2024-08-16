@@ -1,11 +1,20 @@
 package com.example.notesappretrofit.presentation.home
 
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import com.example.notesappretrofit.ui.theme.backgroungGray
 
 @Composable
 fun HomeView() {
 
-    Text(text = "Authorized")
+    Scaffold(
+        containerColor = backgroungGray
+    ) {
+        Text(text = "aUTHORIZED",modifier =Modifier.padding(it))
+    }
 
 }

@@ -87,9 +87,9 @@ import javax.inject.Inject
         }
     }
 
-     override suspend fun changePass(request: UserChangePasswordRequest): Result<Boolean, UserError> {
+     override suspend fun changePass(request: UserChangePasswordRequest,token :String): Result<Boolean, UserError> {
          return try {
-             val result =  api.changePassword(request)
+             val result =  api.changePassword(request,token)
              if(result.status != 200){
                  //explicitly throw exception
                  throw HttpException(Response.error<Any>(result.status, ResponseBody.create(null,"")))
@@ -112,9 +112,9 @@ import javax.inject.Inject
          }
      }
 
-     override suspend fun authenticate(): Result<Boolean, UserError> {
+     override suspend fun authenticate(token: String): Result<Boolean, UserError> {
          return try{
-             val result = api.authenticate()
+             val result = api.authenticate(token)
              if(result.status != 200){
                  //explicitly throw exception
                  throw HttpException(Response.error<Any>(result.status, ResponseBody.create(null,"")))

@@ -18,8 +18,8 @@ import javax.inject.Inject
 interface UserRepository {
     suspend fun register(request: UserLoginRegisterRequest):Result<Boolean,UserError>
     suspend fun login(request: UserLoginRegisterRequest):Result<Boolean,UserError>
-    suspend fun changePass(request: UserChangePasswordRequest):Result<Boolean,UserError>
-    suspend fun authenticate():Result<Boolean,UserError>
+    suspend fun changePass(request: UserChangePasswordRequest,token :String):Result<Boolean,UserError>
+    suspend fun authenticate(token: String):Result<Boolean,UserError>
 }
 
 

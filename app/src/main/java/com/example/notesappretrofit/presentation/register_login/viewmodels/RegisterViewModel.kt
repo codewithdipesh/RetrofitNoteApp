@@ -95,16 +95,23 @@ class RegisterLoginViewModel @Inject constructor(
     fun checkAuthorization() {
         viewModelScope.launch {
             _authState.value = UiState.Loading
-            when(val result = repository.authenticate()){
-                is Result.Success->{
-                    _isAuthorized.value = result.data
-                    _authState.value = UiState.Initial
-                }
-                is Result.Error ->{
-                    _isAuthorized.value = false
-                    _authState.value = UiState.Initial
+            val token = tokenManager.getToken()
+            if(token == null){
+                _isAuthorized.value = false
+                _authState.value = UiState.Initial
+            }else{
+                when(val result = repository.authenticate(token)){
+                    is Result.Success->{
+                        _isAuthorized.value = result.data
+                        _authState.value = UiState.Initial
+                    }
+                    is Result.Error ->{
+                        _isAuthorized.value = false
+                        _authState.value = UiState.Initial
+                    }
                 }
             }
+
         }
     }
 
