@@ -89,7 +89,7 @@ fun LoginScreen(
    ) {
          Box(modifier = Modifier
              .padding(it)
-             .padding(horizontal = 24.dp)
+             .padding(horizontal = 38.dp)
              .padding(bottom = 32.dp)
              .fillMaxSize(),
              contentAlignment = Alignment.Center)

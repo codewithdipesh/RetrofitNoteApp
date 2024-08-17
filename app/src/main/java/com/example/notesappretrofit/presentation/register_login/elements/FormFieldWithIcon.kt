@@ -2,9 +2,11 @@ package com.example.notesappretrofit.presentation.register_login.elements
 import com.example.notesappretrofit.R
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -35,10 +38,12 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -49,69 +54,78 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Locale
 
-
 @Composable
 fun FormFieldWithIcon(
-    name : String,
-    onChange : (String)-> Unit,
-    color : Color,
-    isEnabled : Boolean = true
+    name: String,
+    onChange: (String) -> Unit,
+    color: Color,
+    isEnabled: Boolean = true
 ) {
     var value by remember { mutableStateOf("") }
-
     var passwordVisible by remember { mutableStateOf(false) }
-
     val scope = rememberCoroutineScope()
+
     Column(
-        modifier = Modifier
-            .padding(vertical = 8.dp),
+        modifier = Modifier.padding(vertical = 8.dp),
         horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(text = name,
-            color = color,
-            fontSize = 18.sp
-            )
+        Text(text = name, color = color, fontSize = 18.sp)
         Spacer(modifier = Modifier.height(6.dp))
-        OutlinedTextField(
-            value = value ,
-            onValueChange = {
-                 value = it
-                onChange(it)
-            },
-            enabled = isEnabled,
-            placeholder = {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(42.dp)
+                .border(2.dp, color, RectangleShape)
+        ) {
+            if (value.isEmpty()) {
                 Text(
                     text = "Enter ${name.lowercase(Locale.ROOT)} ...",
                     color = color,
-                    fontSize = 16.sp
-                    )
-            },
-            visualTransformation = if(passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-            trailingIcon = {
-                           val image = if(passwordVisible)
-                               R.drawable.baseline_visibility_24
-                           else R.drawable.baseline_visibility_off_24
-                IconButton(onClick = {
-                   scope.launch {
+                    fontSize = 14.sp,
+                    modifier = Modifier
+                        .padding(start = 16.dp)
+                        .align(Alignment.CenterStart)
+                )
+            }
+            BasicTextField(
+                value = value,
+                onValueChange = {
+                    if (it.length <= 16) {  // Limit to 50 characters
+                        value = it
+                        onChange(it)
+                    }
+                },
+                enabled = isEnabled,
+                singleLine = true,
+                textStyle = TextStyle(color = Color.White, fontFamily = customfont),
+                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, end = 16.dp)
+                    .align(Alignment.CenterStart)
+            )
+            IconButton(
+                onClick = {
+                    scope.launch {
                         passwordVisible = true
-                        delay(800)
+                        delay(500)
                         passwordVisible = false
                     }
-                }) {
-                  Icon(painter = painterResource(id = image), contentDescription = null)
-                }
-
-            },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color.White,
-                unfocusedBorderColor = Color.White,
-            ),
-            textStyle = TextStyle(color = color, fontFamily = customfont)
-            )
+                },
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(end = 8.dp)
+            ) {
+                Icon(
+                    painter = painterResource(
+                        id = if (passwordVisible) R.drawable.baseline_visibility_24
+                        else R.drawable.baseline_visibility_off_24
+                    ),
+                    contentDescription = if (passwordVisible) "Hide password" else "Show password",
+                    tint = color
+                )
+            }
+        }
     }
 }
-
-

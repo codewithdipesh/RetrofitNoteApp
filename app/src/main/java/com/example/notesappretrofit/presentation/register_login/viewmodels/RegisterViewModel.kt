@@ -30,6 +30,11 @@ class RegisterLoginViewModel @Inject constructor(
     private val _isAuthorized = MutableStateFlow<Boolean>(false)
     val isAuthorized :StateFlow<Boolean> = _isAuthorized.asStateFlow()
 
+
+    init {
+        checkAuthorization()
+    }
+
     // Update form state functions
     fun updateLoginUsername(username: String) {
         _formState.update { it.copy(loginUsername = username) }
@@ -46,11 +51,6 @@ class RegisterLoginViewModel @Inject constructor(
     fun updateRegisterPassword(password: String) {
         _formState.update { it.copy(registerPassword = password) }
     }
-
-    init {
-        checkAuthorization()
-    }
-
 
 
    fun register(username : String , password :String){
@@ -100,16 +100,20 @@ class RegisterLoginViewModel @Inject constructor(
                 _isAuthorized.value = false
                 _authState.value = UiState.Initial
             }else{
-                when(val result = repository.authenticate(token)){
-                    is Result.Success->{
-                        _isAuthorized.value = result.data
-                        _authState.value = UiState.Initial
-                    }
-                    is Result.Error ->{
-                        _isAuthorized.value = false
-                        _authState.value = UiState.Initial
-                    }
+                if(token.startsWith("Bearer ")){
+                    _isAuthorized.value = true
+                    _authState.value = UiState.Initial
                 }
+//                when(val result = repository.authenticate(token)){
+//                    is Result.Success->{
+//                        _isAuthorized.value = result.data
+//                        _authState.value = UiState.Initial
+//                    }
+//                    is Result.Error ->{
+//                        _isAuthorized.value = false
+//                        _authState.value = UiState.Initial
+//                    }
+//                }
             }
 
         }
