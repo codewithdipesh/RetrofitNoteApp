@@ -19,8 +19,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,6 +38,7 @@ import com.example.notesappretrofit.presentation.register_login.elements.FormFie
 import com.example.notesappretrofit.presentation.register_login.elements.FormFieldWithIcon
 import com.example.notesappretrofit.presentation.register_login.viewmodels.RegisterLoginViewModel
 import com.example.notesappretrofit.presentation.register_login.viewmodels.UiState
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -53,6 +56,14 @@ fun RegisterScreen(
 
     val isFormEnabled by remember {
         derivedStateOf { authState !is UiState.Loading  }
+    }
+
+    var showEmptyUsernameError by remember {
+        mutableStateOf(false)
+    }
+    var showEmptyPasswordError by remember {
+        mutableStateOf(false
+        )
     }
 
     val scope = rememberCoroutineScope()
@@ -93,7 +104,7 @@ fun RegisterScreen(
          Box(modifier = Modifier
              .padding(it)
              .padding(horizontal = 38.dp)
-             .padding(bottom = 32.dp)
+             .padding(bottom = 50.dp)
              .fillMaxSize(),
              contentAlignment = Alignment.Center)
          {
@@ -115,7 +126,7 @@ fun RegisterScreen(
                   fontSize = 40.sp,
                   color = text_color
               )
-              Spacer(modifier = Modifier.height(24.dp))
+              Spacer(modifier = Modifier.height(30.dp))
               FormField(
                   field = "USERNAME",
                   onChange = {
@@ -124,7 +135,17 @@ fun RegisterScreen(
                   textColor = text_color,
                   isEnabled = isFormEnabled
               )
-              Spacer(modifier = Modifier.height(16.dp))
+              //empty username
+              if(showEmptyUsernameError){
+                  Text(
+                      text = "username can't be empty",
+                      fontSize = 14.sp,
+                      color = Color.Red
+                  )
+                  Spacer(modifier = Modifier.height(4.dp))
+              }else{
+                  Spacer(modifier = Modifier.height(18.dp))
+              }
               FormFieldWithIcon(
                   field = "PASSWORD",
                   onChange = {
@@ -133,15 +154,56 @@ fun RegisterScreen(
                   inputColor = text_color,
                   isEnabled = isFormEnabled
               )
-              Spacer(modifier = Modifier.height(24.dp))
+              //empty password
+              if(showEmptyPasswordError){
+                  Text(
+                      text = "password can't be empty",
+                      fontSize = 14.sp,
+                      color = Color.Red
+                  )
+                  Spacer(modifier = Modifier.height(10.dp))
+              }else{
+                  Spacer(modifier = Modifier.height(20.dp))
+              }
 
               Row (modifier = Modifier.fillMaxWidth(),
                   horizontalArrangement = Arrangement.SpaceBetween,
                   verticalAlignment = Alignment.CenterVertically){
-                  CustomButton(text = "REGISTER"){
-                    if(authState !is UiState.Loading){
-                        viewModel.register(formState.registerUsername,formState.registerPassword)
-                    }
+                  CustomButton(text = "REGISTER") {
+                      if (authState !is UiState.Loading) {
+                          //check empty inputs
+                          if (formState.registerUsername.isEmpty() || formState.registerPassword.isEmpty()) {
+                              //both empty
+                              if (formState.registerUsername.isEmpty() && formState.registerPassword.isEmpty()) {
+                                  scope.launch {
+                                      showEmptyUsernameError = true
+                                      showEmptyPasswordError = true
+                                      delay(600)
+                                      showEmptyUsernameError = false
+                                      showEmptyPasswordError = false
+                                  }
+                              } else if (formState.registerUsername.isEmpty()) {
+                                  scope.launch {
+                                      showEmptyUsernameError = true
+                                      delay(600)
+                                      showEmptyUsernameError = false
+                                  }
+                              } else {
+                                  scope.launch {
+                                      showEmptyPasswordError = true
+                                      delay(600)
+                                      showEmptyPasswordError = false
+                                  }
+                              }
+                          }
+                          //everything is fine
+                          else {
+                              viewModel.register(
+                                  formState.registerUsername,
+                                  formState.registerPassword
+                              )
+                          }
+                      }
                   }
                   ClickableUnderlinedText(
                       text = "HAVE AN ACCOUNT?",
