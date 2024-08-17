@@ -74,11 +74,13 @@ fun LoginScreen(
               scope.launch {
                   Toast.makeText(context, (authState as UiState.Error).error, Toast.LENGTH_SHORT).show()
               }
+              viewModel.updateUiStateToNormal()
           }
           is UiState.Success -> {
               scope.launch {
                   Toast.makeText(context, "Login successful", Toast.LENGTH_SHORT).show()
               }
+              viewModel.updateUiStateToNormal()
           }
           else -> {}
       }
@@ -145,8 +147,9 @@ fun LoginScreen(
                   ClickableUnderlinedText(
                       text = "NEW USER?",
                       onClick = {
-                            navController.navigate(Screen.Register.route)
-                                },
+                          if(authState !is UiState.Loading) {
+                              navController.navigate(Screen.Register.route)
+                          } },
                       color = text_color,
                       size = 16.sp
                   )

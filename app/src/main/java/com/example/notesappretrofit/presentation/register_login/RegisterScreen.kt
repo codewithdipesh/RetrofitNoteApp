@@ -77,11 +77,13 @@ fun RegisterScreen(
                 scope.launch {
                     Toast.makeText(context,(authState as UiState.Error).error,Toast.LENGTH_SHORT).show()
                 }
+                viewModel.updateUiStateToNormal()
             }
             is UiState.Success ->{
                 scope.launch {
                     Toast.makeText(context,"Registered Successfully",Toast.LENGTH_SHORT).show()
                 }
+                viewModel.updateUiStateToNormal()
             }
             else-> {}
         }
@@ -150,7 +152,9 @@ fun RegisterScreen(
                   ClickableUnderlinedText(
                       text = "HAVE AN ACCOUNT?",
                       onClick = {
-                      navController.navigate(Screen.Login.route)
+                          if(authState !is UiState.Loading){
+                              navController.navigate(Screen.Login.route)
+                          }
                                 },
                       color = text_color,
                       size = 16.sp

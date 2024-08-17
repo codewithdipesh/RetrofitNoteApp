@@ -53,6 +53,14 @@ class RegisterLoginViewModel @Inject constructor(
     }
 
 
+    //update uiState after any error during login and register
+
+    fun updateUiStateToNormal(){
+        _authState.value = UiState.Initial
+    }
+
+
+
    fun register(username : String , password :String){
        viewModelScope.launch {
            _authState.value = UiState.Loading
