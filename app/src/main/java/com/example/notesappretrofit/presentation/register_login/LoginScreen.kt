@@ -92,7 +92,7 @@ fun LoginScreen(
          Box(modifier = Modifier
              .padding(it)
              .padding(horizontal = 38.dp)
-             .padding(bottom = 32.dp)
+             .padding(bottom = 50.dp)
              .fillMaxSize(),
              contentAlignment = Alignment.Center)
          {
@@ -114,22 +114,22 @@ fun LoginScreen(
                   fontSize = 40.sp,
                   color = text_color
               )
-              Spacer(modifier = Modifier.height(24.dp))
+              Spacer(modifier = Modifier.height(30.dp))
               FormField(
-                  name = "USERNAME",
+                  field = "USERNAME",
                   onChange = {
                          viewModel.updateLoginUsername(it)
                   },
-                  color = text_color,
+                  textColor = text_color,
                   isEnabled = isFormEnabled
               )
               Spacer(modifier = Modifier.height(16.dp))
               FormFieldWithIcon(
-                  name = "PASSWORD",
+                  field = "PASSWORD",
                   onChange = {
                          viewModel.updateLoginPassword(it)
                   },
-                  color = text_color,
+                  inputColor = text_color,
                   isEnabled = isFormEnabled
               )
               Spacer(modifier = Modifier.height(24.dp))
