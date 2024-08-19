@@ -1,6 +1,8 @@
 package com.example.notesappretrofit.presentation.home.viewModel
 
+import android.content.Context
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,8 +13,10 @@ import com.example.notesappretrofit.domain.NoteError
 import com.example.notesappretrofit.domain.Result
 import com.example.notesappretrofit.domain.repository.NoteRepository
 import com.example.notesappretrofit.presentation.home.elements.ConnectivityObserver
+import com.example.notesappretrofit.presentation.register_login.viewmodels.RegisterLoginViewModel
 import com.example.notesappretrofit.utils.mapNoteErrorToMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,17 +24,19 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.time.LocalTime
+import java.util.Calendar
 import javax.inject.Inject
 
-@RequiresApi(Build.VERSION_CODES.O)
+
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val repository: NoteRepository,
     private val tokenManager: TokenManager,
-    private val connectivityObserver: ConnectivityObserver
+    private val connectivityObserver: ConnectivityObserver,
+    @ApplicationContext private val context: Context
 ) :ViewModel(){
 
-    private val _uistate = MutableStateFlow<UiState<Boolean>>(UiState.Initial)
+    private val _uistate = MutableStateFlow<UiState<Boolean>>(UiState.Loading)
     val uiState : StateFlow<UiState<Boolean>> = _uistate.asStateFlow()
 
 
@@ -43,6 +49,7 @@ class HomeViewModel @Inject constructor(
 
     private var isFetched = false
     init {
+        Log.d("init","reached")
         observeNetwork()
     }
 
@@ -75,13 +82,14 @@ class HomeViewModel @Inject constructor(
 
     private fun fetchData(token : String){
         //TODO fetch the username fo logo
+        Log.d("fetching","reached")
             viewModelScope.launch {
                 _uistate.value = UiState.Loading
                 val response = repository.getAllNotes(token)
                 when(response){
                     is Result.Error -> {
                         when(response.error){
-                            NoteError.SERVER_ERROR ->{
+                            NoteError.SERVER_ERROR,NoteError.NETWORK_ERROR ->{
                                 _uistate.value = UiState.ServerError
                             }
                             NoteError.UNAUTHORIZED ->{
@@ -107,14 +115,20 @@ class HomeViewModel @Inject constructor(
 
 
     private  fun getGreeting():String{
-        val currentHour = LocalTime.now().hour
-        return when (currentHour){
+        val calendar = Calendar.getInstance(context.resources.configuration.locales[0])
+        val hourOfDay = calendar.get(Calendar.HOUR_OF_DAY)
+        return when (hourOfDay) {
             in 5..11 -> "Morning"
-            in 12..16 -> "AfterNoon"
+            in 12..16 -> "Afternoon"
             in 17..20 -> "Evening"
             else -> "Night"
         }
     }
+
+    fun updateUiStateToNormal(){
+        _uistate.value = UiState.Initial
+    }
+
 
 
 

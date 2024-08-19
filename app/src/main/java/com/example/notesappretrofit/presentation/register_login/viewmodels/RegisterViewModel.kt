@@ -27,13 +27,7 @@ class RegisterLoginViewModel @Inject constructor(
     private val _formState = MutableStateFlow<AuthFormState>(AuthFormState())
     val formState :StateFlow<AuthFormState> = _formState.asStateFlow()
 
-    private val _isAuthorized = MutableStateFlow<Boolean>(false)
-    val isAuthorized :StateFlow<Boolean> = _isAuthorized.asStateFlow()
 
-
-    init {
-        checkAuthorization()
-    }
 
     // Update form state functions
     fun updateLoginUsername(username: String) {
@@ -68,7 +62,6 @@ class RegisterLoginViewModel @Inject constructor(
            when(val result = repository.register(request)){
                is Result.Success ->{
                    _authState.value = UiState.Success(true)
-                   _isAuthorized.value = true
                }
                is Result.Error -> {
                    _authState.value = UiState.Error(mapUserErrorToMessage(result.error))
@@ -84,7 +77,6 @@ class RegisterLoginViewModel @Inject constructor(
             when(val result = repository.login(request)){
                 is Result.Success ->{
                     _authState.value = UiState.Success(true)
-                    _isAuthorized.value = true
                 }
                 is Result.Error -> {
                     _authState.value = UiState.Error(mapUserErrorToMessage(result.error))
@@ -93,39 +85,10 @@ class RegisterLoginViewModel @Inject constructor(
         }
     }
 
-    fun resetAuthState() {
-        //cleared authentication token
-        tokenManager.clearToken()
-        _authState.value = UiState.Initial
-        _isAuthorized.value = false
-    }
 
-    fun checkAuthorization() {
-        viewModelScope.launch {
-            _authState.value = UiState.Loading
-            val token = tokenManager.getToken()
-            if(token == null){
-                _isAuthorized.value = false
-                _authState.value = UiState.Initial
-            }else{
-                if(token.startsWith("Bearer ")){
-                    _isAuthorized.value = true
-                    _authState.value = UiState.Initial
-                }
-//                when(val result = repository.authenticate(token)){
-//                    is Result.Success->{
-//                        _isAuthorized.value = result.data
-//                        _authState.value = UiState.Initial
-//                    }
-//                    is Result.Error ->{
-//                        _isAuthorized.value = false
-//                        _authState.value = UiState.Initial
-//                    }
-//                }
-            }
 
-        }
-    }
+
+
 
 
 }

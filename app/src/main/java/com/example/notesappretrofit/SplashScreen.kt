@@ -10,19 +10,21 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.notesappretrofit.presentation.navigation.AuthViewModel
 import com.example.notesappretrofit.presentation.register_login.viewmodels.RegisterLoginViewModel
 import kotlinx.coroutines.delay
 
 @Composable
 fun SplashScreen(
-    onAuthCheckComplete: (Boolean) -> Unit
+    onAuthCheckComplete: (Boolean) -> Unit,
+    authViewModel: AuthViewModel
 ) {
     val viewModel: RegisterLoginViewModel = hiltViewModel()
-    val isAuthorized by viewModel.isAuthorized.collectAsState()
+    val isAuthorized by authViewModel.isAuthorized.collectAsState()
 
     // Perform the authentication check
     LaunchedEffect(Unit) {
-        viewModel.checkAuthorization()  // Trigger the authorization check
+        authViewModel.checkAuthorization()  // Trigger the authorization check
         // Wait until the check is complete
         // Adjust this delay if needed
         delay(1000)

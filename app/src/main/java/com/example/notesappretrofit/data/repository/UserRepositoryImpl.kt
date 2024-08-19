@@ -78,7 +78,7 @@ import javax.inject.Inject
         }catch (e : HttpException){
             when(e.code()){
                 //Custom Error from Backend
-                400 -> Result.Error(UserError.INVALID_CREDENTIAL)
+                400,403 -> Result.Error(UserError.INVALID_CREDENTIAL)
                 500 -> Result.Error(UserError.SERVER_ERROR)
                 else -> Result.Error(UserError.UNKNOWN_ERROR)
             }

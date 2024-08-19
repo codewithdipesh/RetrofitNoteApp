@@ -31,6 +31,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.notesappretrofit.presentation.navigation.AuthViewModel
 import com.example.notesappretrofit.presentation.navigation.Screen
 import com.example.notesappretrofit.presentation.register_login.elements.ClickableUnderlinedText
 import com.example.notesappretrofit.presentation.register_login.elements.CustomButton
@@ -44,6 +45,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun RegisterScreen(
     viewModel: RegisterLoginViewModel,
+    authViewModel: AuthViewModel,
     navController: NavController
 ){
     val bg = R.color.background
@@ -52,7 +54,7 @@ fun RegisterScreen(
 
     val authState by viewModel.authState.collectAsState()
     val formState by viewModel.formState.collectAsState()
-    val isAuthorized by viewModel.isAuthorized.collectAsState()
+    val isAuthorized by authViewModel.isAuthorized.collectAsState()
 
     val isFormEnabled by remember {
         derivedStateOf { authState !is UiState.Loading  }
@@ -85,6 +87,8 @@ fun RegisterScreen(
                 viewModel.updateUiStateToNormal()
             }
             is UiState.Success ->{
+                //make authorize true
+                authViewModel.makeAuthorize()
                 scope.launch {
                     Toast.makeText(context,"Registered Successfully",Toast.LENGTH_SHORT).show()
                 }

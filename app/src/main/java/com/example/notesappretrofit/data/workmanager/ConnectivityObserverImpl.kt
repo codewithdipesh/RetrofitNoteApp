@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
 import com.example.notesappretrofit.presentation.home.elements.ConnectivityObserver
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -12,7 +13,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class ConnectivityObserverImpl @Inject constructor(
-    private val context: Context
+    @ApplicationContext private val context: Context
 ):ConnectivityObserver{
 
     private val connectivityManager =

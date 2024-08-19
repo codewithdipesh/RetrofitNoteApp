@@ -12,6 +12,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.notesappretrofit.presentation.home.HomeView
+import com.example.notesappretrofit.presentation.home.viewModel.HomeViewModel
 import com.example.notesappretrofit.presentation.register_login.LoginScreen
 import com.example.notesappretrofit.presentation.register_login.RegisterScreen
 import com.example.notesappretrofit.presentation.register_login.viewmodels.RegisterLoginViewModel
@@ -21,7 +22,9 @@ import com.example.notesappretrofit.ui.theme.backgroungGray
 fun AppNavigation(
    navController: NavHostController,
    isAuthorized : Boolean,
-   viewModel:RegisterLoginViewModel
+   registerLoginViewModel :RegisterLoginViewModel,
+   authViewModel: AuthViewModel,
+   homeViewModel: HomeViewModel
 ) {
   Box(
       modifier = Modifier
@@ -48,7 +51,7 @@ fun AppNavigation(
               fadeOut(animationSpec = tween(100))
           })
       {
-          LoginScreen(navController = navController , viewModel = viewModel)
+          LoginScreen(navController = navController , viewModel = registerLoginViewModel, authViewModel = authViewModel)
       }
       composable(
           Screen.Register.route,
@@ -64,10 +67,10 @@ fun AppNavigation(
           popExitTransition = {
               fadeOut(animationSpec = tween(100))
           }){
-          RegisterScreen(navController = navController, viewModel = viewModel)
+          RegisterScreen(navController = navController, viewModel = registerLoginViewModel, authViewModel =authViewModel)
       }
       composable(Screen.Home.route){
-          HomeView()
+          HomeView(viewModel = homeViewModel,navController = navController, authViewModel = authViewModel)
       }
   }
 

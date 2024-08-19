@@ -18,7 +18,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
+import com.example.notesappretrofit.presentation.home.viewModel.HomeViewModel
 import com.example.notesappretrofit.presentation.navigation.AppNavigation
+import com.example.notesappretrofit.presentation.navigation.AuthViewModel
 import com.example.notesappretrofit.presentation.navigation.Screen
 import com.example.notesappretrofit.presentation.register_login.LoginScreen
 import com.example.notesappretrofit.presentation.register_login.viewmodels.RegisterLoginViewModel
@@ -31,7 +33,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val navController = rememberNavController()
-            val viewModel by viewModels<RegisterLoginViewModel>()
+            val registerLoginViewModel by viewModels<RegisterLoginViewModel>()
+            val homeViewModel by viewModels<HomeViewModel>()
+            val authViewModel by viewModels<AuthViewModel>()
             var isAuthChecked by remember { mutableStateOf(false) }
             var isAuthorized by remember { mutableStateOf(false) }
             NotesAppRetrofitTheme {
@@ -40,23 +44,29 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    if(isAuthChecked){
+                    if (isAuthChecked) {
                         AppNavigation(
                             navController = navController,
-                            viewModel = viewModel,
+                            registerLoginViewModel = registerLoginViewModel,
+                            authViewModel = authViewModel,
+                            homeViewModel = homeViewModel,
                             isAuthorized = isAuthorized
                         )
-                    }else{
-                        SplashScreen{authStatus ->
-                            isAuthChecked = true
-                            isAuthorized = authStatus
-                        }}
+                    } else {
+                        SplashScreen(
+                            authViewModel = authViewModel,
+                            onAuthCheckComplete = { authStatus ->
+                                isAuthChecked = true
+                                isAuthorized = authStatus
+                            }
+                        )
                     }
 
                 }
             }
 
         }
+    }
     }
 
 
