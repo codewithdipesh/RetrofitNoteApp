@@ -10,5 +10,9 @@
     <color name="background">#242121</color>
     <color name="gray">#D8D8D8</color>
     <color name="darkgray">#616163</color>
+    <color name="pfpcolor">#9D8383</color>
+    <color name="search_button_color">#797979</color>
+    <color name="note_bg">#454545</color>
+    <color name="note_desc">#D3D3D3</color>
 
 </resources>

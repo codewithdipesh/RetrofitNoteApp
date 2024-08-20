@@ -1,29 +1,23 @@
 package com.example.notesappretrofit.presentation.home.viewModel
 
 import android.content.Context
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.notesappretrofit.data.local.TokenManager
 import com.example.notesappretrofit.data.remote.note.dto.NoteData
-import com.example.notesappretrofit.data.workmanager.ConnectivityObserverImpl
 import com.example.notesappretrofit.domain.NoteError
 import com.example.notesappretrofit.domain.Result
 import com.example.notesappretrofit.domain.repository.NoteRepository
 import com.example.notesappretrofit.presentation.home.elements.ConnectivityObserver
-import com.example.notesappretrofit.presentation.register_login.viewmodels.RegisterLoginViewModel
 import com.example.notesappretrofit.utils.mapNoteErrorToMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import java.time.LocalTime
 import java.util.Calendar
 import javax.inject.Inject
 
@@ -43,16 +37,23 @@ class HomeViewModel @Inject constructor(
     private val _notes = MutableStateFlow<List<NoteData>>(emptyList())
     val notes : StateFlow<List<NoteData>> = _notes.asStateFlow()
 
+    private var cachedNotes :List<NoteData> = emptyList()
+
     private val _greeting = MutableStateFlow<String>("")
     val greeting : StateFlow<String> = _greeting.asStateFlow()
 
+    private val _searchedValue = MutableStateFlow<String>("")
+    val searchedValue:StateFlow<String> = _searchedValue.asStateFlow()
+
+    private var isInitiatedNotes = false
 
     private var isFetched = false
     init {
-        Log.d("init","reached")
         observeNetwork()
+        if(isInitiatedNotes){
+            observeSearchValue()
+        }
     }
-
 
 
     private fun observeNetwork(){
@@ -71,6 +72,7 @@ class HomeViewModel @Inject constructor(
                         ConnectivityObserver.Status.Lost, ConnectivityObserver.Status.Unavailable -> {
                             _uistate.value = UiState.NoInternet
                             isFetched =false
+                            isInitiatedNotes = false
                         }
                     }
 
@@ -78,11 +80,36 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun updateSearchValue(newValue : String){
+        _searchedValue.value = newValue
+    }
+    private fun observeSearchValue() {
+        viewModelScope.launch {
+            _searchedValue.collectLatest { newValue ->
+                searchNote(newValue)
+            }
+        }
+    }
 
+
+    private fun searchNote(value: String){
+       if(value.isNotEmpty()){
+           var searchedNotes :List<NoteData> = emptyList()
+           cachedNotes.forEach {
+               note->
+               if(note.title.contains(value,ignoreCase = false) || note.description.contains(value,ignoreCase = false)){
+                   searchedNotes += note
+               }
+           }
+           _notes.value = searchedNotes
+       }else{
+           //search is empty show all notes
+           _notes.value = cachedNotes
+       }
+    }
 
     private fun fetchData(token : String){
         //TODO fetch the username fo logo
-        Log.d("fetching","reached")
             viewModelScope.launch {
                 _uistate.value = UiState.Loading
                 val response = repository.getAllNotes(token)
@@ -102,11 +129,13 @@ class HomeViewModel @Inject constructor(
                     }
                     is Result.Success ->{
                         _notes.value = response.data
+                        cachedNotes = response.data
                         //set the greetings
                          _greeting.value = getGreeting()
                         //Todo set the username
                         _uistate.value = UiState.Initial
                         isFetched = true
+                        isInitiatedNotes = true
                     }
                 }
             }
@@ -114,7 +143,7 @@ class HomeViewModel @Inject constructor(
 
 
 
-    private  fun getGreeting():String{
+     private suspend fun getGreeting():String{
         val calendar = Calendar.getInstance(context.resources.configuration.locales[0])
         val hourOfDay = calendar.get(Calendar.HOUR_OF_DAY)
         return when (hourOfDay) {
