@@ -85,6 +85,15 @@ fun HomeView(
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
+    //for the first time after register or login ,
+    //fetching the data
+    LaunchedEffect(Unit){
+        val token = viewModel.getToken()
+        if (token != null) {
+            viewModel.fetchData(token)
+        }
+    }
+
     LaunchedEffect(uistate){
         if(uistate is UiState.Unauthorized){
             scope.launch {
@@ -106,11 +115,11 @@ fun HomeView(
     }
 
     when (uistate) {
-        is UiState.Loading -> AnimatedShimmer()
+        is UiState.Loading,UiState.Unauthorized -> AnimatedShimmer()
         is UiState.NoInternet -> ConnectionLostScreen()
         is UiState.ServerError -> ServerErrorScreen()
-        else -> {
-            HomeScreen(viewModel =viewModel)
+        else ->{
+            HomeScreen(viewModel = viewModel)
         }
     }
 }

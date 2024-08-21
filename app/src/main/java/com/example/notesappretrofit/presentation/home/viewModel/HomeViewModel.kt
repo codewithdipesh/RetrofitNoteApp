@@ -15,6 +15,7 @@ import com.example.notesappretrofit.utils.mapNoteErrorToMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -55,6 +56,7 @@ class HomeViewModel @Inject constructor(
     private var isInitiatedNotes = false
 
     private var isFetched = false
+        private set
     init {
         observeNetwork()
         if(isInitiatedNotes){
@@ -97,6 +99,10 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
+    fun getToken(): String? {
+        return tokenManager.getToken()
+    }
+
 
 
     private fun searchNote(value: String){
@@ -115,7 +121,8 @@ class HomeViewModel @Inject constructor(
        }
     }
 
-    private fun fetchData(token : String){
+    fun fetchData(token : String){
+        Log.d("fetching","called")
         //TODO fetch the username fo logo
             viewModelScope.launch {
                 _uistate.value = UiState.Loading
@@ -153,6 +160,9 @@ class HomeViewModel @Inject constructor(
                                     _username.value = name.data
                                 }
                             }
+                        //TODO ADDED DELAY FOR COMPOSE THE UI PROPERLY (username and greeting)
+                        delay(100)
+                        Log.d("viewmodel",_greeting.value + " " + _username.value)
                             _uistate.value = UiState.Initial
                             isFetched = true
                             isInitiatedNotes = true
