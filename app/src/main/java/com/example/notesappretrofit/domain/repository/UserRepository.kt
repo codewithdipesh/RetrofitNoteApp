@@ -20,6 +20,7 @@ interface UserRepository {
     suspend fun login(request: UserLoginRegisterRequest):Result<Boolean,UserError>
     suspend fun changePass(request: UserChangePasswordRequest,token :String):Result<Boolean,UserError>
     suspend fun authenticate(token: String):Result<Boolean,UserError>
+    suspend fun getUsername(token: String):Result<String,UserError>
 }
 
 

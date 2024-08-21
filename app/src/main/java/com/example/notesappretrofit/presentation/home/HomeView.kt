@@ -123,8 +123,8 @@ fun HomeScreen(
 
     val background_color: Color = colorResource(id = R.color.background)
     val text_color = colorResource(id = R.color.white)
-    val greeting by viewModel.greeting.collectAsState()
     val notes by viewModel.notes.collectAsState()
+    val username by viewModel.username.collectAsState()
 
     Scaffold(containerColor = background_color) {
         Column(
@@ -134,7 +134,7 @@ fun HomeScreen(
                 .padding(horizontal = 20.dp, vertical = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            TopBar(greeting = greeting, text_color = text_color, username = "Dipesh")
+            TopBar( viewModel = viewModel, text_color = text_color)
 
             Spacer(modifier = Modifier.height(30.dp))
             SearchBar(

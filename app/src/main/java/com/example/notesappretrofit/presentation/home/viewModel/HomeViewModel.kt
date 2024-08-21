@@ -9,15 +9,18 @@ import com.example.notesappretrofit.data.remote.note.dto.NoteData
 import com.example.notesappretrofit.domain.NoteError
 import com.example.notesappretrofit.domain.Result
 import com.example.notesappretrofit.domain.repository.NoteRepository
+import com.example.notesappretrofit.domain.repository.UserRepository
 import com.example.notesappretrofit.presentation.home.elements.ConnectivityObserver
 import com.example.notesappretrofit.utils.mapNoteErrorToMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Calendar
 import javax.inject.Inject
 
@@ -25,6 +28,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val repository: NoteRepository,
+    private val userRepo : UserRepository,
     private val tokenManager: TokenManager,
     private val connectivityObserver: ConnectivityObserver,
     @ApplicationContext private val context: Context
@@ -41,6 +45,9 @@ class HomeViewModel @Inject constructor(
 
     private val _greeting = MutableStateFlow<String>("")
     val greeting : StateFlow<String> = _greeting.asStateFlow()
+
+    private val _username = MutableStateFlow<String>("")
+    val username : StateFlow<String> = _username.asStateFlow()
 
     private val _searchedValue = MutableStateFlow<String>("")
     val searchedValue:StateFlow<String> = _searchedValue.asStateFlow()
@@ -131,11 +138,26 @@ class HomeViewModel @Inject constructor(
                         _notes.value = response.data
                         cachedNotes = response.data
                         //set the greetings
-                         _greeting.value = getGreeting()
-                        //Todo set the username
-                        _uistate.value = UiState.Initial
-                        isFetched = true
-                        isInitiatedNotes = true
+
+                        val greetingVal = getGreeting()
+
+                        //ui will show properly after username and greeting
+
+                            _greeting.value = greetingVal
+
+                            //username
+                            val name = userRepo.getUsername(token)
+                            when(name){
+                                is Result.Error -> {}//as we are here then it will never error
+                                is Result.Success-> {
+                                    _username.value = name.data
+                                }
+                            }
+                            _uistate.value = UiState.Initial
+                            isFetched = true
+                            isInitiatedNotes = true
+
+
                     }
                 }
             }

@@ -135,6 +135,30 @@ import javax.inject.Inject
          }
      }
 
+     override suspend fun getUsername(token: String): Result<String, UserError> {
+
+         return try{
+             val result = api.getUsername(token)
+             if(result.status != 200){
+                 //explicitly throw exception
+                 throw HttpException(Response.error<Any>(result.status, ResponseBody.create(null,"")))
+             }
+             Result.Success(result.token)//the username
+         }catch (e: IOException){
+             //No Internet
+             Result.Error(UserError.NETWORK_ERROR)
+         }catch (e : HttpException){
+             when(e.code()){
+                 //Custom Error from Backend
+                 401,403->Result.Error(UserError.UNAUTHORIZED)
+                 500 -> Result.Error(UserError.SERVER_ERROR)
+                 else -> Result.Error(UserError.UNKNOWN_ERROR)
+             }
+         }catch(e:Exception){
+             Result.Error(UserError.UNKNOWN_ERROR)
+         }
+     }
+
 
  }
 

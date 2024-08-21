@@ -35,7 +35,7 @@ import com.example.notesappretrofit.utils.getDatefromString
 fun NoteCard(
     note: NoteData,
     onClick :()-> Unit = {}
-) {.
+) {
     Box(modifier = Modifier
         .fillMaxWidth()
         .clip(RoundedCornerShape(28.dp))

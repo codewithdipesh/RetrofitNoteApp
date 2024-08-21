@@ -32,6 +32,10 @@ interface UserApi {
     suspend fun authenticate(
     @Header("Authorization") token : String
     ):AuthenticateResponse
+@GET("user/getUsername")
+    suspend fun getUsername(
+    @Header("Authorization") token : String
+    ):UserLoginRegisterResponse
 
 
 
