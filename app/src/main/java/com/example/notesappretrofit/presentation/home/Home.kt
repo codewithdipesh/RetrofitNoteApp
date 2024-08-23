@@ -30,12 +30,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
@@ -45,6 +47,7 @@ import androidx.navigation.NavController
 import com.example.notesappretrofit.presentation.home.elements.AnimatedShimmer
 import com.example.notesappretrofit.presentation.home.elements.ConnectionLostScreen
 import com.example.notesappretrofit.presentation.home.elements.EmptyNotesUI
+import com.example.notesappretrofit.presentation.home.elements.HomeView
 import com.example.notesappretrofit.presentation.home.elements.NoteCard
 import com.example.notesappretrofit.presentation.home.elements.SearchBar
 import com.example.notesappretrofit.presentation.home.elements.ServerErrorScreen
@@ -53,6 +56,7 @@ import com.example.notesappretrofit.presentation.home.viewModel.HomeViewModel
 import com.example.notesappretrofit.presentation.home.viewModel.UiState
 import com.example.notesappretrofit.presentation.navigation.AuthViewModel
 import com.example.notesappretrofit.presentation.navigation.Screen
+import dev.chrisbanes.haze.HazeState
 import kotlinx.coroutines.launch
 
 
@@ -108,109 +112,6 @@ fun Home(
 }
 
 
-@Composable
-fun HomeView(
-    viewModel: HomeViewModel,
-    navController: NavController
-) {
-
-    val background_color: Color = colorResource(id = R.color.background)
-    val text_color = colorResource(id = R.color.white)
-    val notes by viewModel.notes.collectAsState()
-
-    Scaffold(
-        containerColor = background_color,
-        bottomBar = {
-            Box(
-                modifier = Modifier
-                    .wrapContentHeight()
-                    .fillMaxWidth()
-                    .height(130.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(67.dp)
-                        .clip(RoundedCornerShape(50.dp))
-                        .background(Color.White)
-                        .clickable {
-
-                        },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Add,
-                        contentDescription = "add",
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-                Row(
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .height(70.dp)
-                        .paint(
-                            painter = painterResource(R.drawable.bottom_nav),
-                            contentScale = ContentScale.FillHeight
-                        )
-                ) {
-                    //homescreen
-                    if(navController.currentBackStackEntry?.destination?.route == Screen.Home.route){
-                        Image(painter = painterResource(id = R.drawable.dashborad_filled), contentDescription = "home" )
-                    }else{
-                        Image(painter = painterResource(id = R.drawable.dashborad), contentDescription = "home" )
-                    }
-                    Spacer(modifier = Modifier.width(22.dp))
-                    //favorites
-                    if(navController.currentBackStackEntry?.destination?.route == Screen.Favorites.route){
-                        Image(painter = painterResource(id = R.drawable.star_filled), contentDescription = "favorites" )
-                    }else{
-                        Image(painter = painterResource(id = R.drawable.star), contentDescription = "favorites" )
-                    }
-                }
-            }
-        }
-    ) {
-        Column(
-
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(it)
-                .padding(horizontal = 20.dp, vertical = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            TopBar(viewModel = viewModel, text_color = text_color)
-
-            Spacer(modifier = Modifier.height(30.dp))
-            SearchBar(
-                onSearch = {
-                    viewModel.updateSearchValue(it)
-                }
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            if (notes.isEmpty()) {
-                EmptyNotesUI()
-            } else {
-                LazyVerticalStaggeredGrid(
-                    columns = StaggeredGridCells.Fixed(2),
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    contentPadding = PaddingValues(8.dp),
-                    verticalItemSpacing = 16.dp,
-                    horizontalArrangement = Arrangement.spacedBy(14.dp)
-                ) {
-                    items(notes) { note ->
-                        NoteCard(note = note)
-                    }
-                }
-            }
-
-
-        }
-
-    }
-}
 
 
 

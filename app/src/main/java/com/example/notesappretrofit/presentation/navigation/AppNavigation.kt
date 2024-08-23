@@ -12,7 +12,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.notesappretrofit.presentation.home.Home
-import com.example.notesappretrofit.presentation.home.HomeView
 import com.example.notesappretrofit.presentation.home.viewModel.HomeViewModel
 import com.example.notesappretrofit.presentation.register_login.LoginScreen
 import com.example.notesappretrofit.presentation.register_login.RegisterScreen

@@ -100,4 +100,6 @@ dependencies {
     testImplementation ("com.google.dagger:hilt-android-testing:2.51.1")
     //Animation
     implementation("androidx.compose.animation:animation:1.6.8")
+    //blur
+    implementation("dev.chrisbanes.haze:haze:0.9.0-alpha08")
 }

@@ -1,4 +1,5 @@
 package com.example.notesappretrofit.presentation.home.elements
+import android.os.Message
 import com.example.notesappretrofit.R
 
 import androidx.compose.foundation.Image
@@ -19,7 +20,7 @@ import androidx.compose.ui.unit.sp
 import com.example.notesappretrofit.ui.theme.customfont
 
 @Composable
-fun EmptyNotesUI() {
+fun EmptyNotesUI(message: String) {
     Column(modifier = Modifier
         .fillMaxSize()
         .padding(20.dp),
@@ -29,7 +30,7 @@ fun EmptyNotesUI() {
         Image(painter = painterResource(id = R.drawable.no_notes_icon), contentDescription = null )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "You don't have any notes yet" ,
+            text = message ,
             fontSize = 20.sp ,
             fontFamily = customfont ,
             color = Color.White

@@ -42,6 +42,9 @@ class HomeViewModel @Inject constructor(
     private val _notes = MutableStateFlow<List<NoteData>>(emptyList())
     val notes : StateFlow<List<NoteData>> = _notes.asStateFlow()
 
+    private val _favNotes = MutableStateFlow<List<NoteData>>(emptyList())
+    val favNotes : StateFlow<List<NoteData>> = _favNotes.asStateFlow()
+
     private var cachedNotes :List<NoteData> = emptyList()
 
     private val _greeting = MutableStateFlow<String>("")
@@ -50,8 +53,6 @@ class HomeViewModel @Inject constructor(
     private val _username = MutableStateFlow<String>("")
     val username : StateFlow<String> = _username.asStateFlow()
 
-    private val _searchedValue = MutableStateFlow<String>("")
-    val searchedValue:StateFlow<String> = _searchedValue.asStateFlow()
 
     private var isInitiatedNotes = false
 
@@ -59,9 +60,7 @@ class HomeViewModel @Inject constructor(
         private set
     init {
         observeNetwork()
-        if(isInitiatedNotes){
-            observeSearchValue()
-        }
+
     }
 
 
@@ -89,36 +88,34 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun updateSearchValue(newValue : String){
-        _searchedValue.value = newValue
-    }
-    private fun observeSearchValue() {
-        viewModelScope.launch {
-            _searchedValue.collectLatest { newValue ->
-                searchNote(newValue)
-            }
-        }
-    }
+
     fun getToken(): String? {
         return tokenManager.getToken()
     }
 
 
+    private fun setFavNotes(){
+        val favoriteNotes = _notes.value.filter { note->
+            note.isFavorite == true
+        }
+        _favNotes.value = favoriteNotes
+    }
 
-    private fun searchNote(value: String){
-       if(value.isNotEmpty()){
-           var searchedNotes :List<NoteData> = emptyList()
-           cachedNotes.forEach {
-               note->
-               if(note.title.contains(value,ignoreCase = false) || note.description.contains(value,ignoreCase = false)){
-                   searchedNotes += note
-               }
+
+     fun searchNote(value: String){
+       Log.d("search",value)
+       if(value.isNotEmpty() || value != ""){
+           Log.d("search","inside search")
+           val searchedNotes = cachedNotes.filter { note ->
+               note.title.contains(value, ignoreCase = true) || note.description.contains(value, ignoreCase = true)
            }
            _notes.value = searchedNotes
        }else{
+           Log.d("search val 0",cachedNotes.toString())
            //search is empty show all notes
            _notes.value = cachedNotes
        }
+         Log.d("search",_notes.value.toString())
     }
 
     fun fetchData(token : String){
@@ -144,8 +141,10 @@ class HomeViewModel @Inject constructor(
                     is Result.Success ->{
                         _notes.value = response.data
                         cachedNotes = response.data
-                        //set the greetings
 
+                        setFavNotes()
+
+                        //set the greetings
                         val greetingVal = getGreeting()
 
                         //ui will show properly after username and greeting
@@ -160,9 +159,8 @@ class HomeViewModel @Inject constructor(
                                     _username.value = name.data
                                 }
                             }
-                        //TODO ADDED DELAY FOR COMPOSE THE UI PROPERLY (username and greeting)
-                        delay(100)
-                        Log.d("viewmodel",_greeting.value + " " + _username.value)
+
+//                        Log.d("viewmodel",_greeting.value + " " + _username.value)
                             _uistate.value = UiState.Initial
                             isFetched = true
                             isInitiatedNotes = true
