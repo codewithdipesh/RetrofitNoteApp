@@ -4,5 +4,6 @@ package com.example.notesappretrofit.presentation.navigation
      object Home : Screen("home")
      object Login : Screen("login")
      object Register : Screen("register")
+     object Favorites : Screen("favorites")
 
 }

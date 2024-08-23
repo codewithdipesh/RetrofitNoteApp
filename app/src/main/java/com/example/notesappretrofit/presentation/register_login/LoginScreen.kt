@@ -41,7 +41,6 @@ import com.example.notesappretrofit.presentation.register_login.viewmodels.Regis
 import com.example.notesappretrofit.presentation.register_login.viewmodels.UiState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.util.Locale
 
 @Composable
 fun LoginScreen(

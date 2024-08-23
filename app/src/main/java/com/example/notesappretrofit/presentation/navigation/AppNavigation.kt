@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.notesappretrofit.presentation.home.Home
 import com.example.notesappretrofit.presentation.home.HomeView
 import com.example.notesappretrofit.presentation.home.viewModel.HomeViewModel
 import com.example.notesappretrofit.presentation.register_login.LoginScreen
@@ -70,7 +71,7 @@ fun AppNavigation(
           RegisterScreen(navController = navController, viewModel = registerLoginViewModel, authViewModel =authViewModel)
       }
       composable(Screen.Home.route){
-          HomeView(viewModel = homeViewModel,navController = navController, authViewModel = authViewModel)
+          Home(viewModel = homeViewModel,navController = navController, authViewModel = authViewModel)
       }
   }
 
