@@ -1,5 +1,6 @@
 package com.example.notesappretrofit.presentation.home.elements
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -11,11 +12,16 @@ import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.unit.dp
 import com.example.notesappretrofit.presentation.home.viewModel.HomeViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun AllNotes(
@@ -25,7 +31,11 @@ fun AllNotes(
 
     val notes by viewModel.notes.collectAsState()
 
+    var isRefreshing by remember {
+        mutableStateOf(false)
+    }
 
+    val scope = rememberCoroutineScope()
 
     SearchBar(
         onSearch = {
@@ -36,17 +46,25 @@ fun AllNotes(
     if (notes.isEmpty()) {
         EmptyNotesUI("You don't have any notes yet")
     } else {
-        LazyVerticalStaggeredGrid(
-            columns = StaggeredGridCells.Fixed(2),
-            modifier = Modifier
-                .fillMaxSize(),
-            contentPadding = PaddingValues(8.dp),
-            verticalItemSpacing = 16.dp,
-            horizontalArrangement = Arrangement.spacedBy(14.dp)
-        ) {
-            items(notes) { note ->
-                NoteCard(note = note,graphicsLayer = graphicsLayer)
+        PullToRefreshLazyColumn(
+            items = notes ,
+            content = {note->
+                      NoteCard(
+                          note = note,
+                          graphicsLayer = graphicsLayer )
+            },
+            isRefreshing = isRefreshing ,
+            onRefresh = {
+                scope.launch{
+                    isRefreshing = true
+                    Log.d("refreshing",isRefreshing.toString())
+                    viewModel.refreshNotes()
+                    Log.d("refreshing",isRefreshing.toString())
+                    isRefreshing = false
+                    Log.d("refreshing",isRefreshing.toString())
+
+                }
             }
-        }
+        )
     }
 }

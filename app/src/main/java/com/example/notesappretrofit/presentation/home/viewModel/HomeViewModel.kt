@@ -102,7 +102,7 @@ class HomeViewModel @Inject constructor(
     }
 
 
-     fun searchNote(value: String){
+      fun searchNote(value: String){
        Log.d("search",value)
        if(value.isNotEmpty() || value != ""){
            Log.d("search","inside search")
@@ -118,7 +118,7 @@ class HomeViewModel @Inject constructor(
          Log.d("search",_notes.value.toString())
     }
 
-    fun fetchData(token : String){
+    suspend fun fetchData(token : String){
         Log.d("fetching","called")
         //TODO fetch the username fo logo
             viewModelScope.launch {
@@ -143,24 +143,19 @@ class HomeViewModel @Inject constructor(
                         cachedNotes = response.data
 
                         setFavNotes()
-
                         //set the greetings
                         val greetingVal = getGreeting()
+                        _greeting.value = greetingVal
 
-                        //ui will show properly after username and greeting
-
-                            _greeting.value = greetingVal
-
-                            //username
-                            val name = userRepo.getUsername(token)
+                        val name = userRepo.getUsername(token)
                             when(name){
                                 is Result.Error -> {}//as we are here then it will never error
                                 is Result.Success-> {
                                     _username.value = name.data
                                 }
+
                             }
 
-//                        Log.d("viewmodel",_greeting.value + " " + _username.value)
                             _uistate.value = UiState.Initial
                             isFetched = true
                             isInitiatedNotes = true
@@ -172,8 +167,52 @@ class HomeViewModel @Inject constructor(
     }
 
 
+    suspend fun refreshNotes() {
 
-     private suspend fun getGreeting():String{
+            val token = tokenManager.getToken()
+            if (token == null) {
+                //unauthorized
+                _uistate.value = UiState.Unauthorized
+                return
+            }
+            val response = repository.getAllNotes(token)
+            when (response) {
+                is Result.Error -> {
+                    when (response.error) {
+                        NoteError.SERVER_ERROR, NoteError.NETWORK_ERROR -> {
+                            _uistate.value = UiState.ServerError
+
+                        }
+
+                        NoteError.UNAUTHORIZED -> {
+                            _uistate.value = UiState.Unauthorized
+
+                        }
+
+                        else -> {
+                            _uistate.value = UiState.Error(mapNoteErrorToMessage(response.error))
+
+                        }
+                    }
+                }
+
+                is Result.Success -> {
+                    _notes.value = response.data
+                    cachedNotes = response.data
+
+                    setFavNotes()
+
+                    isFetched = true
+
+                }
+
+
+        }
+    }
+
+
+
+     private  fun getGreeting():String{
         val calendar = Calendar.getInstance(context.resources.configuration.locales[0])
         val hourOfDay = calendar.get(Calendar.HOUR_OF_DAY)
         return when (hourOfDay) {
