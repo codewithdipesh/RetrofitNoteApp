@@ -16,12 +16,16 @@ import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.unit.dp
 import com.example.notesappretrofit.presentation.home.viewModel.HomeViewModel
-import dev.chrisbanes.haze.HazeState
 
 @Composable
-fun AllNotes(viewModel : HomeViewModel) {
+fun AllNotes(
+    viewModel : HomeViewModel,
+    graphicsLayer:GraphicsLayer
+) {
 
     val notes by viewModel.notes.collectAsState()
+
+
 
     SearchBar(
         onSearch = {
@@ -41,7 +45,7 @@ fun AllNotes(viewModel : HomeViewModel) {
             horizontalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             items(notes) { note ->
-                NoteCard(note = note)
+                NoteCard(note = note,graphicsLayer = graphicsLayer)
             }
         }
     }

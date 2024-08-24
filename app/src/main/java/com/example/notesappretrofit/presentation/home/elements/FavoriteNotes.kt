@@ -21,10 +21,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.notesappretrofit.presentation.home.viewModel.HomeViewModel
 import com.example.notesappretrofit.ui.theme.customfont
-import dev.chrisbanes.haze.HazeState
 
 @Composable
-fun FavoriteNotes(viewModel : HomeViewModel) {
+fun FavoriteNotes(
+    viewModel : HomeViewModel,
+    graphicsLayer:GraphicsLayer
+) {
 
     val favNotes by viewModel.favNotes.collectAsState()
     Column(
@@ -49,7 +51,7 @@ fun FavoriteNotes(viewModel : HomeViewModel) {
                 horizontalArrangement = Arrangement.spacedBy(14.dp)
             ) {
                 items(favNotes) { note ->
-                    NoteCard(note = note)
+                    NoteCard(note = note,graphicsLayer = graphicsLayer)
                 }
             }
         }

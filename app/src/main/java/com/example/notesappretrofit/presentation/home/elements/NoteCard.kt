@@ -33,13 +33,13 @@ import androidx.compose.ui.unit.sp
 import com.example.notesappretrofit.data.remote.note.dto.NoteData
 import com.example.notesappretrofit.ui.theme.customfont
 import com.example.notesappretrofit.utils.getDatefromString
-import dev.chrisbanes.haze.HazeState
-import dev.chrisbanes.haze.haze
+import com.skydoves.cloudy.cloudy
 
 @Composable
 fun NoteCard(
     note: NoteData,
-    onClick :()-> Unit = {}
+    onClick :()-> Unit = {},
+    graphicsLayer:GraphicsLayer
 ) {
     Box(modifier = Modifier
         .fillMaxWidth()
@@ -54,7 +54,7 @@ fun NoteCard(
             .fillMaxWidth()
             .then(
                 if (note.isLocked) {
-                    Modifier.blur(20.dp)
+                    Modifier.cloudy(radius = 30, graphicsLayer = graphicsLayer)
                 } else {
                     Modifier
                 }

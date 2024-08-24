@@ -101,5 +101,5 @@ dependencies {
     //Animation
     implementation("androidx.compose.animation:animation:1.6.8")
     //blur
-    implementation("dev.chrisbanes.haze:haze:0.9.0-alpha08")
+    implementation("com.github.skydoves:cloudy:0.2.1")
 }

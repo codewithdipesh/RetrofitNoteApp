@@ -44,13 +44,13 @@ import androidx.navigation.NavController
 import com.example.notesappretrofit.R
 import com.example.notesappretrofit.presentation.home.viewModel.HomeViewModel
 import com.example.notesappretrofit.presentation.navigation.Screen
-import dev.chrisbanes.haze.HazeState
 
 
 @Composable
 fun HomeView(
     viewModel: HomeViewModel,
     navController: NavController,
+    graphicsLayer: GraphicsLayer
 ) {
 
     val background_color: Color = colorResource(id = R.color.background)
@@ -151,9 +151,9 @@ fun HomeView(
 
             Spacer(modifier = Modifier.height(30.dp))
             if(subScreen == HomeScreen.ALLNOTES){
-                AllNotes(viewModel = viewModel)
+                AllNotes(viewModel = viewModel,graphicsLayer = graphicsLayer)
             }else{
-                FavoriteNotes(viewModel = viewModel)
+                FavoriteNotes(viewModel = viewModel,graphicsLayer = graphicsLayer)
             }
 
 
