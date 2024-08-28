@@ -23,6 +23,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -80,11 +81,16 @@ fun HomeView(
                         },
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        imageVector = Icons.Filled.Add,
-                        contentDescription = "add",
-                        modifier = Modifier.size(20.dp)
-                    )
+                    IconButton(onClick = {
+                        navController.navigate(Screen.AddorEdit.route+"/0")
+                    }) {
+                        Icon(
+                            imageVector = Icons.Filled.Add,
+                            contentDescription = "add",
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+
                 }
                 Row(
                     horizontalArrangement = Arrangement.SpaceEvenly,
@@ -151,9 +157,9 @@ fun HomeView(
 
             Spacer(modifier = Modifier.height(30.dp))
             if(subScreen == HomeScreen.ALLNOTES){
-                AllNotes(viewModel = viewModel,graphicsLayer = graphicsLayer)
+                AllNotes(viewModel = viewModel,graphicsLayer = graphicsLayer, navController = navController)
             }else{
-                FavoriteNotes(viewModel = viewModel,graphicsLayer = graphicsLayer)
+                FavoriteNotes(viewModel = viewModel,graphicsLayer = graphicsLayer,navController = navController)
             }
 
 

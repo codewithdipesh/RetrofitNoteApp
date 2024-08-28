@@ -19,13 +19,16 @@ import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.notesappretrofit.presentation.home.viewModel.HomeViewModel
+import com.example.notesappretrofit.presentation.navigation.Screen
 import com.example.notesappretrofit.ui.theme.customfont
 
 @Composable
 fun FavoriteNotes(
     viewModel : HomeViewModel,
-    graphicsLayer:GraphicsLayer
+    graphicsLayer:GraphicsLayer,
+    navController: NavController
 ) {
 
     val favNotes by viewModel.favNotes.collectAsState()
@@ -51,7 +54,9 @@ fun FavoriteNotes(
                 horizontalArrangement = Arrangement.spacedBy(14.dp)
             ) {
                 items(favNotes) { note ->
-                    NoteCard(note = note,graphicsLayer = graphicsLayer)
+                    NoteCard(note = note,graphicsLayer = graphicsLayer, onClick = {
+                        navController.navigate(Screen.AddorEdit.route+"/${note.id}")
+                    })
                 }
             }
         }

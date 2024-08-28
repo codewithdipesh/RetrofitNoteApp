@@ -63,7 +63,7 @@ import javax.inject.Inject
          token: String
      ): Result<Boolean, NoteError> {
          return try {
-            val result = api.updateNote(noteId,token)
+            val result = api.updateNote(request,noteId,token)
             if(result.status != 200) {
                 throw HttpException(Response.error<Any>(result.status, ResponseBody.create(null,"")))
             }
@@ -116,6 +116,30 @@ import javax.inject.Inject
                  throw HttpException(Response.error<Any>(result.status, ResponseBody.create(null, "" )))
              }
              Result.Success(result.notes)
+         } catch (e: IOException) {
+             //No Internet
+             Result.Error(NoteError.NETWORK_ERROR)
+         } catch (e: HttpException) {
+             when (e.code()) {
+                 //Custom Error from Backend
+                 401,403-> Result.Error(NoteError.UNAUTHORIZED)
+                 400 -> Result.Error(NoteError.INVALID_INPUT)
+                 500 -> Result.Error(NoteError.SERVER_ERROR)
+                 else -> Result.Error(NoteError.UNKNOWN_ERROR)
+             }
+         } catch (e: Exception) {
+             Result.Error(NoteError.UNKNOWN_ERROR)
+         }
+     }
+
+     override suspend fun getNoteById(token: String, id: String): Result<NoteData, NoteError> {
+         return try {
+             val result = api.getNote(id,token)
+             if(result.status != 200) {
+                 //explicitly throw exception
+                 throw HttpException(Response.error<Any>(result.status, ResponseBody.create(null, "" )))
+             }
+             Result.Success(result.noteDetails)
          } catch (e: IOException) {
              //No Internet
              Result.Error(NoteError.NETWORK_ERROR)

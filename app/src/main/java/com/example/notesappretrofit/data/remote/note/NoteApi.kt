@@ -26,6 +26,7 @@ interface NoteApi {
 
     @PUT("note/{noteId}")
     suspend fun updateNote(
+        @Body request: NoteRequest,
         @Path("noteId") id : String,
         @Header("Authorization") token : String
     ):NoteUpdatedDeletedResponse
@@ -35,5 +36,11 @@ interface NoteApi {
         @Path("noteId") id : String,
         @Header("Authorization") token : String
     ):NoteUpdatedDeletedResponse
+
+    @GET("note/{noteId}")
+    suspend fun getNote(
+        @Path("noteId") id : String,
+        @Header("Authorization") token : String
+    ):NoteCreateResponse
 
 }

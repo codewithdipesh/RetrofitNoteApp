@@ -15,4 +15,5 @@ interface NoteRepository {
     suspend fun updateNote(request : NoteRequest,noteId: String,token: String) : Result<Boolean,NoteError>
     suspend fun deleteNote(noteId: String,token: String) : Result<Boolean,NoteError>
     suspend fun getAllNotes(token: String):Result<List<NoteData>,NoteError>
+    suspend fun getNoteById(token: String,id:String):Result<NoteData,NoteError>
 }

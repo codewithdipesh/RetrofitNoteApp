@@ -21,3 +21,9 @@ fun getDatefromString(dateString: String) : String{
     val outputFormat = SimpleDateFormat("EEE, dd MMM yy", Locale.ENGLISH)
     return outputFormat.format(calendar.time)
 }
+
+
+fun getCurrentDate(): String {
+    val dateFormat = SimpleDateFormat("EEE, dd MMM yy", Locale.getDefault())
+    return dateFormat.format(Date())
+}

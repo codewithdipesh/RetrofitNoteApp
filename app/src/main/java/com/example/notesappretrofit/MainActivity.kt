@@ -18,6 +18,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
+import com.example.notesappretrofit.presentation.add_edit.viewmodel.AddEditViewModel
 import com.example.notesappretrofit.presentation.home.viewModel.HomeViewModel
 import com.example.notesappretrofit.presentation.navigation.AppNavigation
 import com.example.notesappretrofit.presentation.navigation.AuthViewModel
@@ -36,6 +37,7 @@ class MainActivity : ComponentActivity() {
             val registerLoginViewModel by viewModels<RegisterLoginViewModel>()
             val homeViewModel by viewModels<HomeViewModel>()
             val authViewModel by viewModels<AuthViewModel>()
+            val noteViewModel by viewModels<AddEditViewModel>()
             var isAuthChecked by remember { mutableStateOf(false) }
             var isAuthorized by remember { mutableStateOf(false) }
             NotesAppRetrofitTheme {
@@ -50,7 +52,8 @@ class MainActivity : ComponentActivity() {
                             registerLoginViewModel = registerLoginViewModel,
                             authViewModel = authViewModel,
                             homeViewModel = homeViewModel,
-                            isAuthorized = isAuthorized
+                            isAuthorized = isAuthorized,
+                            noteViewModel = noteViewModel
                         )
                     } else {
                         SplashScreen(

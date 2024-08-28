@@ -20,13 +20,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.notesappretrofit.presentation.home.viewModel.HomeViewModel
+import com.example.notesappretrofit.presentation.navigation.Screen
 import kotlinx.coroutines.launch
 
 @Composable
 fun AllNotes(
     viewModel : HomeViewModel,
-    graphicsLayer:GraphicsLayer
+    graphicsLayer:GraphicsLayer,
+    navController: NavController
 ) {
 
     val notes by viewModel.notes.collectAsState()
@@ -51,7 +54,12 @@ fun AllNotes(
             content = {note->
                       NoteCard(
                           note = note,
-                          graphicsLayer = graphicsLayer )
+                          graphicsLayer = graphicsLayer,
+                          onClick = {
+                              navController.navigate(Screen.AddorEdit.route+"/${note.id}")
+                          }
+
+                      )
             },
             isRefreshing = isRefreshing ,
             onRefresh = {
