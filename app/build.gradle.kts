@@ -102,4 +102,5 @@ dependencies {
     implementation("androidx.compose.animation:animation:1.6.8")
     //blur
     implementation("com.github.skydoves:cloudy:0.2.1")
+    implementation("com.meetup:twain:0.2.2")
 }

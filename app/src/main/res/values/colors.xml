@@ -15,5 +15,6 @@
     <color name="note_bg">#454545</color>
     <color name="note_desc">#D3D3D3</color>
     <color name="bottom_nav">#342D2D</color>
+    <color name="date_color">#CCCCCC</color>
 
 </resources>

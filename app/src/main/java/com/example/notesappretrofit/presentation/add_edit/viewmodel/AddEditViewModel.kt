@@ -57,7 +57,8 @@ class AddEditViewModel @Inject constructor(
                                 title = response.data.title,
                                 description = response.data.description,
                                 isFavorite = response.data.isFavorite,
-                                isLocked =  response.data.isLocked
+                                isLocked =  response.data.isLocked,
+                                createdAt = response.data.createdAt
                             )
                         }
                     }
@@ -83,7 +84,8 @@ class AddEditViewModel @Inject constructor(
                        title =  _Uistate.value.title,
                        description =  _Uistate.value.description,
                        isLocked =  _Uistate.value.isLocked,
-                       isFavorite =  _Uistate.value.isFavorite
+                       isFavorite =  _Uistate.value.isFavorite,
+                       createdAt = _Uistate.value.createdAt
                     ) ,
                     id,
                     token
@@ -116,7 +118,8 @@ class AddEditViewModel @Inject constructor(
                         title =  _Uistate.value.title,
                         description =  _Uistate.value.description,
                         isLocked =  _Uistate.value.isLocked,
-                        isFavorite =  _Uistate.value.isFavorite
+                        isFavorite =  _Uistate.value.isFavorite,
+                        createdAt = _Uistate.value.createdAt
                     ) ,
                     token
                 )

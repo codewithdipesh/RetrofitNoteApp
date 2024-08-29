@@ -24,6 +24,6 @@ fun getDatefromString(dateString: String) : String{
 
 
 fun getCurrentDate(): String {
-    val dateFormat = SimpleDateFormat("EEE, dd MMM yy", Locale.getDefault())
+    val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     return dateFormat.format(Date())
 }
