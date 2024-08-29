@@ -1,16 +1,15 @@
 package com.example.notesappretrofit
 
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -19,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import com.example.notesappretrofit.presentation.add_edit.viewmodel.AddEditViewModel
+import com.example.notesappretrofit.presentation.home.elements.BiometricPromptManager
 import com.example.notesappretrofit.presentation.home.viewModel.HomeViewModel
 import com.example.notesappretrofit.presentation.navigation.AppNavigation
 import com.example.notesappretrofit.presentation.navigation.AuthViewModel
@@ -29,7 +29,11 @@ import com.example.notesappretrofit.ui.theme.NotesAppRetrofitTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
+
+    private val promptManager by lazy {
+        BiometricPromptManager(this)
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -53,7 +57,8 @@ class MainActivity : ComponentActivity() {
                             authViewModel = authViewModel,
                             homeViewModel = homeViewModel,
                             isAuthorized = isAuthorized,
-                            noteViewModel = noteViewModel
+                            noteViewModel = noteViewModel,
+                            promptManager = promptManager
                         )
                     } else {
                         SplashScreen(
@@ -67,6 +72,8 @@ class MainActivity : ComponentActivity() {
 
                 }
             }
+
+
 
         }
     }

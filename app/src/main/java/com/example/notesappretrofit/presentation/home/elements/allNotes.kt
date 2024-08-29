@@ -1,6 +1,9 @@
 package com.example.notesappretrofit.presentation.home.elements
 
+import android.content.Context
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -25,11 +28,14 @@ import com.example.notesappretrofit.presentation.home.viewModel.HomeViewModel
 import com.example.notesappretrofit.presentation.navigation.Screen
 import kotlinx.coroutines.launch
 
+@RequiresApi(Build.VERSION_CODES.P)
 @Composable
 fun AllNotes(
     viewModel : HomeViewModel,
     graphicsLayer:GraphicsLayer,
-    navController: NavController
+    navController: NavController,
+    context: Context,
+    promptManager:BiometricPromptManager
 ) {
 
     val notes by viewModel.notes.collectAsState()
@@ -53,6 +59,7 @@ fun AllNotes(
             items = notes ,
             content = {note->
                       NoteCard(
+                          promptManager=promptManager,
                           note = note,
                           graphicsLayer = graphicsLayer,
                           onClick = {

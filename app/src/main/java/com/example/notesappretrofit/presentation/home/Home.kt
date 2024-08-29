@@ -9,6 +9,7 @@ import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 import com.example.notesappretrofit.presentation.home.elements.AnimatedShimmer
+import com.example.notesappretrofit.presentation.home.elements.BiometricPromptManager
 import com.example.notesappretrofit.presentation.home.elements.ConnectionLostScreen
 import com.example.notesappretrofit.presentation.home.elements.HomeView
 import com.example.notesappretrofit.presentation.home.elements.ServerErrorScreen
@@ -24,6 +25,7 @@ fun Home(
     viewModel: HomeViewModel,
     authViewModel: AuthViewModel,
     navController: NavController,
+    promptManager:BiometricPromptManager
 
 ) {
     
@@ -67,7 +69,7 @@ fun Home(
         is UiState.NoInternet -> ConnectionLostScreen()
         is UiState.ServerError -> ServerErrorScreen()
         else ->{
-            HomeView(viewModel = viewModel,navController = navController,graphicsLayer = graphicsLayer)
+            HomeView(viewModel = viewModel,navController = navController,graphicsLayer = graphicsLayer,promptManager=promptManager)
         }
     }
 }

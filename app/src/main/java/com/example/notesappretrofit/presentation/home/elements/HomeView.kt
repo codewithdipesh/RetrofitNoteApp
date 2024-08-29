@@ -1,5 +1,7 @@
 package com.example.notesappretrofit.presentation.home.elements
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -38,6 +40,7 @@ import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -47,11 +50,13 @@ import com.example.notesappretrofit.presentation.home.viewModel.HomeViewModel
 import com.example.notesappretrofit.presentation.navigation.Screen
 
 
+@RequiresApi(Build.VERSION_CODES.P)
 @Composable
 fun HomeView(
     viewModel: HomeViewModel,
     navController: NavController,
-    graphicsLayer: GraphicsLayer
+    graphicsLayer: GraphicsLayer,
+    promptManager:BiometricPromptManager
 ) {
 
     val background_color: Color = colorResource(id = R.color.background)
@@ -60,6 +65,7 @@ fun HomeView(
     var subScreen by remember {
         mutableStateOf(HomeScreen.ALLNOTES)
     }
+    val context = LocalContext.current
 
     Scaffold(
         containerColor = background_color,
@@ -153,9 +159,9 @@ fun HomeView(
 
             Spacer(modifier = Modifier.height(30.dp))
             if(subScreen == HomeScreen.ALLNOTES){
-                AllNotes(viewModel = viewModel,graphicsLayer = graphicsLayer, navController = navController)
+                AllNotes(context = context,viewModel = viewModel,graphicsLayer = graphicsLayer, navController = navController,promptManager=promptManager)
             }else{
-                FavoriteNotes(viewModel = viewModel,graphicsLayer = graphicsLayer,navController = navController)
+                FavoriteNotes(context = context,viewModel = viewModel,graphicsLayer = graphicsLayer,navController = navController,promptManager=promptManager)
             }
 
 

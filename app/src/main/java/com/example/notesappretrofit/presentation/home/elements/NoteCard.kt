@@ -1,4 +1,14 @@
 package com.example.notesappretrofit.presentation.home.elements
+import android.content.Context
+import android.content.Intent
+import android.os.Build
+import android.provider.Settings
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
+import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG
+import androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL
 import androidx.compose.foundation.Image
 import com.example.notesappretrofit.R
 
@@ -18,6 +28,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,24 +53,59 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.fragment.app.FragmentActivity
 import com.example.notesappretrofit.data.remote.note.dto.NoteData
+import com.example.notesappretrofit.presentation.home.elements.BiometricPromptManager.*
 import com.example.notesappretrofit.ui.theme.customfont
 import com.example.notesappretrofit.utils.getDatefromString
 import com.skydoves.cloudy.cloudy
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+
 @Composable
 fun NoteCard(
     note: NoteData,
     onClick :()-> Unit = {},
     onDelete:(Int)->Unit,
-    graphicsLayer:GraphicsLayer
+    graphicsLayer:GraphicsLayer,
+    promptManager: BiometricPromptManager,
 ) {
     var showOptions by remember {
         mutableStateOf(false)
     }
     val scope = rememberCoroutineScope()
+
+    val biometricResult by promptManager.promptResult.collectAsState(
+        initial = null
+    )
+    val enrollLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult() ,
+        onResult = {
+
+        }
+    )
+    LaunchedEffect(biometricResult){
+        if(biometricResult is BiometricResult.AuthenticationNotSet){
+            if(Build.VERSION.SDK_INT >= 30){
+                val enrollIntent = Intent(Settings.ACTION_BIOMETRIC_ENROLL).apply {
+                    putExtra(
+                        Settings.EXTRA_BIOMETRIC_AUTHENTICATORS_ALLOWED,
+                        BIOMETRIC_STRONG or DEVICE_CREDENTIAL
+                    )
+                }
+                enrollLauncher.launch(enrollIntent)
+            }
+        }
+    }
+    LaunchedEffect(biometricResult) {
+        if (biometricResult is BiometricResult.AuthenticationSuccess) {
+            // Navigate after successful authentication
+            onClick()
+        }
+    }
+
+
     Box(modifier = Modifier
         .fillMaxWidth()
         .clip(RoundedCornerShape(28.dp))
@@ -75,7 +122,17 @@ fun NoteCard(
                     }
                 },
                 onTap = {
-                    onClick()
+                    if (note.isLocked) {
+                        //locked note -> biometric->open
+                        promptManager.showBiometricPrompt(
+                            title = "Authenticate",
+                            description = "Please authenticate to access the note"
+                        )
+
+                    } else {
+                        onClick()
+                    }
+
                 }
             )
         }

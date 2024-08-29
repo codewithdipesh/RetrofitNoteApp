@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -15,13 +16,17 @@ import androidx.compose.foundation.text.BasicTextField
 import com.example.notesappretrofit.R
 
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -33,10 +38,13 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.notesappretrofit.data.remote.note.dto.NoteData
 import com.example.notesappretrofit.presentation.add_edit.elements.CustomTextField
+import com.example.notesappretrofit.presentation.add_edit.elements.DropDownMenuOptions
 import com.example.notesappretrofit.presentation.add_edit.elements.LoveIcon
 import com.example.notesappretrofit.presentation.add_edit.viewmodel.AddEditViewModel
+import com.example.notesappretrofit.presentation.home.viewModel.UiState
 import com.example.notesappretrofit.utils.getCurrentDate
 import com.example.notesappretrofit.utils.getDatefromString
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -48,6 +56,10 @@ fun AddEditScreen(
 
     val state  by viewModel.UiState.collectAsState()
     val scope = rememberCoroutineScope()
+
+    var expanded by remember {
+        mutableStateOf(false)
+    }
 
     val context = LocalContext.current
 
@@ -104,69 +116,98 @@ fun AddEditScreen(
                     contentDescription = "more option",
                     modifier = Modifier
                         .clickable {
-                            //TODO MORE OPTION
+                            expanded = true
                         }
                 )
 
             }
         }
     ){
-        Column(
-            modifier = Modifier.
-            padding(it)
+        Surface (modifier = Modifier
+            .fillMaxSize()
+            .padding(it),
+            color = colorResource(id = R.color.background)
         ) {
+            //Drop Down menu
+            Box(
+                modifier = Modifier
+                    .fillMaxSize() //TODO FIX MENU POSITION
+                    .padding(end = 16.dp, top = 16.dp, start = 250.dp),
+                contentAlignment = Alignment.TopEnd
+            ) {
+                DropDownMenuOptions(
+                    locked = state.isLocked,
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    toggleLockStatus = {
+                        scope.launch {
+                            expanded = false
+                            delay(300)
+                            viewModel.updateLockStatus(!state.isLocked)
+                        }
 
-            Box(modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 2.dp),
-                contentAlignment = Alignment.CenterEnd
-            ){
-                Log.d("Icon",state.isFavorite.toString())
-                LoveIcon(
-                    state = state,
-                    onClick = {
-                        viewModel.updateFavorite(!state.isFavorite)
                     }
                 )
             }
-            CustomTextField(
-                label = "Enter Title",
-                value = state.title,
-                onValueChanged ={
-                  viewModel.updateTitle(it)
-                } ,
-                maxline = 3,
-                fontWeight = FontWeight.ExtraBold,
-                fontSize = 30.sp,
-                context = context,
-                modifier = Modifier.padding(16.dp)
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = getDatefromString(state.createdAt),
-                color = colorResource(id = R.color.date_color),
-                fontSize = 14.sp,
-                modifier = Modifier.padding(16.dp)
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-            CustomTextField(
-                label = "Enter Description",
-                value = state.description,
-                onValueChanged ={
-                    viewModel.updateDescription(it)
-                } ,
-                maxline = 100,
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp,
-                context = context,
-                modifier = Modifier.padding(16.dp)
-            )
-
-
 
         }
+            //Favorite Icon
+            Column(
+                modifier = Modifier.
+                padding(it)
+            ) {
+
+                Box(modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 2.dp),
+                    contentAlignment = Alignment.CenterEnd
+                ){
+                    Log.d("Icon",state.isFavorite.toString())
+                    LoveIcon(
+                        state = state,
+                        onClick = {
+                            viewModel.updateFavorite(!state.isFavorite)
+                        }
+                    )
+                }
+                //Fields
+                CustomTextField(
+                    label = "Enter Title",
+                    value = state.title,
+                    onValueChanged ={
+                        viewModel.updateTitle(it)
+                    } ,
+                    maxline = 3,
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 30.sp,
+                    context = context,
+                    modifier = Modifier.padding(16.dp)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = getDatefromString(state.createdAt),
+                    color = colorResource(id = R.color.date_color),
+                    fontSize = 14.sp,
+                    modifier = Modifier.padding(16.dp)
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+                CustomTextField(
+                    label = "Enter Description",
+                    value = state.description,
+                    onValueChanged ={
+                        viewModel.updateDescription(it)
+                    } ,
+                    maxline = 100,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp,
+                    context = context,
+                    modifier = Modifier.padding(16.dp)
+                )
+
+        }
+
     }
 
 }

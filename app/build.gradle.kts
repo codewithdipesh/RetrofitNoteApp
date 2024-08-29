@@ -55,6 +55,8 @@ android {
 
 dependencies {
 
+    implementation("androidx.appcompat:appcompat:1.7.0")
+
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.4")
     implementation("androidx.activity:activity-compose:1.9.1")
@@ -103,4 +105,7 @@ dependencies {
     //blur
     implementation("com.github.skydoves:cloudy:0.2.1")
     implementation("com.meetup:twain:0.2.2")
+
+    //biometric
+    implementation("androidx.biometric:biometric:1.1.0")
 }

@@ -16,6 +16,7 @@ import androidx.navigation.navArgument
 import com.example.notesappretrofit.presentation.add_edit.AddEditScreen
 import com.example.notesappretrofit.presentation.add_edit.viewmodel.AddEditViewModel
 import com.example.notesappretrofit.presentation.home.Home
+import com.example.notesappretrofit.presentation.home.elements.BiometricPromptManager
 import com.example.notesappretrofit.presentation.home.viewModel.HomeViewModel
 import com.example.notesappretrofit.presentation.register_login.LoginScreen
 import com.example.notesappretrofit.presentation.register_login.RegisterScreen
@@ -29,7 +30,8 @@ fun AppNavigation(
    registerLoginViewModel :RegisterLoginViewModel,
    authViewModel: AuthViewModel,
    homeViewModel: HomeViewModel,
-   noteViewModel : AddEditViewModel
+   noteViewModel : AddEditViewModel,
+   promptManager : BiometricPromptManager
 ) {
   Box(
       modifier = Modifier
@@ -75,7 +77,7 @@ fun AppNavigation(
           RegisterScreen(navController = navController, viewModel = registerLoginViewModel, authViewModel =authViewModel)
       }
       composable(Screen.Home.route){
-          Home(viewModel = homeViewModel,navController = navController, authViewModel = authViewModel)
+          Home(viewModel = homeViewModel,navController = navController, authViewModel = authViewModel,promptManager=promptManager)
       }
       composable(Screen.AddorEdit.route+"/{id}",
           arguments = listOf(
