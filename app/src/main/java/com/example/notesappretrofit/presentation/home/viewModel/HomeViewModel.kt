@@ -210,9 +210,44 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    suspend fun deleteNote(id:String) {
+
+        val token = tokenManager.getToken()
+        if (token == null) {
+            _uistate.value = UiState.Unauthorized
+            return
+        }
+        val response = repository.deleteNote(id,token)
+        when (response) {
+            is Result.Error -> {
+                when (response.error) {
+                    NoteError.SERVER_ERROR, NoteError.NETWORK_ERROR -> {
+                        _uistate.value = UiState.ServerError
+
+                    }
+
+                    NoteError.UNAUTHORIZED -> {
+                        _uistate.value = UiState.Unauthorized
+
+                    }
+
+                    else -> {
+                        _uistate.value = UiState.Error(mapNoteErrorToMessage(response.error))
+
+                    }
+                }
+            }
+
+            is Result.Success -> {
+                refreshNotes()
+            }
 
 
-     private  fun getGreeting():String{
+        }
+    }
+
+
+    private  fun getGreeting():String{
         val calendar = Calendar.getInstance(context.resources.configuration.locales[0])
         val hourOfDay = calendar.get(Calendar.HOUR_OF_DAY)
         return when (hourOfDay) {

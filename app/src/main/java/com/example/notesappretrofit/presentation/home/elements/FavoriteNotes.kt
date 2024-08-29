@@ -1,5 +1,6 @@
 package com.example.notesappretrofit.presentation.home.elements
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -13,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.layer.GraphicsLayer
@@ -23,6 +25,7 @@ import androidx.navigation.NavController
 import com.example.notesappretrofit.presentation.home.viewModel.HomeViewModel
 import com.example.notesappretrofit.presentation.navigation.Screen
 import com.example.notesappretrofit.ui.theme.customfont
+import kotlinx.coroutines.launch
 
 @Composable
 fun FavoriteNotes(
@@ -32,6 +35,7 @@ fun FavoriteNotes(
 ) {
 
     val favNotes by viewModel.favNotes.collectAsState()
+    val scope = rememberCoroutineScope()
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -56,7 +60,12 @@ fun FavoriteNotes(
                 items(favNotes) { note ->
                     NoteCard(note = note,graphicsLayer = graphicsLayer, onClick = {
                         navController.navigate(Screen.AddorEdit.route+"/${note.id}")
-                    })
+                    },
+                        onDelete = {
+                            scope.launch {
+                                viewModel.deleteNote(it.toString())
+                            }
+                        })
                 }
             }
         }

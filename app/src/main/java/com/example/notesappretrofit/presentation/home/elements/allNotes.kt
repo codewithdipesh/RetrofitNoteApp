@@ -57,6 +57,12 @@ fun AllNotes(
                           graphicsLayer = graphicsLayer,
                           onClick = {
                               navController.navigate(Screen.AddorEdit.route+"/${note.id}")
+                          },
+                          onDelete = {
+                              scope.launch {
+                                  viewModel.deleteNote(it.toString())
+                              }
+
                           }
 
                       )

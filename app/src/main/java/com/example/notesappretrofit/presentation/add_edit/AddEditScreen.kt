@@ -1,5 +1,6 @@
 package com.example.notesappretrofit.presentation.add_edit
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -20,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -35,6 +37,7 @@ import com.example.notesappretrofit.presentation.add_edit.elements.LoveIcon
 import com.example.notesappretrofit.presentation.add_edit.viewmodel.AddEditViewModel
 import com.example.notesappretrofit.utils.getCurrentDate
 import com.example.notesappretrofit.utils.getDatefromString
+import kotlinx.coroutines.launch
 
 @Composable
 fun AddEditScreen(
@@ -44,6 +47,7 @@ fun AddEditScreen(
 ) {
 
     val state  by viewModel.UiState.collectAsState()
+    val scope = rememberCoroutineScope()
 
     val context = LocalContext.current
 
@@ -76,12 +80,22 @@ fun AddEditScreen(
                     modifier = Modifier
                         .clickable {
                             if(id != 0){
-                                viewModel.updateNoteDetails(id.toString())
+                                if(state.title.isEmpty() || state.description.isEmpty()){
+                                    scope.launch {
+                                        Toast.makeText(context,"Title and description can't be empty",Toast.LENGTH_SHORT).show()
+                                    }
+                                }else{
+                                    viewModel.updateNoteDetails(id.toString())
+                                    navController.navigateUp()
+                                }
                             }else{
-                                viewModel.createNote()
+                                if(state.title.isEmpty() || state.description.isEmpty()){
+                                    //do nothing
+                                }else{
+                                    viewModel.createNote()
+                                }
+                                navController.navigateUp()
                             }
-
-                            navController.navigateUp()
                         }
                 )
 

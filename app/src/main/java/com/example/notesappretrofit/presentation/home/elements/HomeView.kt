@@ -77,19 +77,15 @@ fun HomeView(
                         .clip(RoundedCornerShape(50.dp))
                         .background(Color.White)
                         .clickable {
-
+                            navController.navigate(Screen.AddorEdit.route+"/0")
                         },
                     contentAlignment = Alignment.Center
                 ) {
-                    IconButton(onClick = {
-                        navController.navigate(Screen.AddorEdit.route+"/0")
-                    }) {
                         Icon(
                             imageVector = Icons.Filled.Add,
                             contentDescription = "add",
                             modifier = Modifier.size(20.dp)
                         )
-                    }
 
                 }
                 Row(
