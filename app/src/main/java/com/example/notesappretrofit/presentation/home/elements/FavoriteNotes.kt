@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -33,7 +34,8 @@ import kotlinx.coroutines.launch
 @RequiresApi(Build.VERSION_CODES.P)
 @Composable
 fun FavoriteNotes(
-    context: Context,
+    biometricSelectedId: MutableState<Int?>,
+    biometricEnabled: MutableState<Boolean>,
     viewModel : HomeViewModel,
     graphicsLayer:GraphicsLayer,
     navController: NavController,
@@ -67,10 +69,10 @@ fun FavoriteNotes(
                     NoteCard(
                         promptManager=promptManager,
                         note = note,
+                        biometricEnabled = biometricEnabled,
+                        biometricSelectedId = biometricSelectedId,
                         graphicsLayer = graphicsLayer,
-                        onClick = {
-                        navController.navigate(Screen.AddorEdit.route+"/${note.id}")
-                         },
+                        navController = navController,
                         onDelete = {
                             scope.launch {
                                 viewModel.deleteNote(it.toString())

@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,10 +32,11 @@ import kotlinx.coroutines.launch
 @RequiresApi(Build.VERSION_CODES.P)
 @Composable
 fun AllNotes(
+    biometricSelectedId:MutableState<Int?>,
+    biometricEnabled:MutableState<Boolean>,
     viewModel : HomeViewModel,
     graphicsLayer:GraphicsLayer,
     navController: NavController,
-    context: Context,
     promptManager:BiometricPromptManager
 ) {
 
@@ -59,12 +61,12 @@ fun AllNotes(
             items = notes ,
             content = {note->
                       NoteCard(
+                          biometricEnabled= biometricEnabled,
+                          biometricSelectedId=biometricSelectedId,
                           promptManager=promptManager,
                           note = note,
                           graphicsLayer = graphicsLayer,
-                          onClick = {
-                              navController.navigate(Screen.AddorEdit.route+"/${note.id}")
-                          },
+                          navController = navController,
                           onDelete = {
                               scope.launch {
                                   viewModel.deleteNote(it.toString())

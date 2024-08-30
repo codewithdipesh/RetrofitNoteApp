@@ -1,5 +1,7 @@
 package com.example.notesappretrofit.presentation.home
+import android.os.Build
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -20,6 +22,7 @@ import com.example.notesappretrofit.presentation.navigation.Screen
 import kotlinx.coroutines.launch
 
 
+@RequiresApi(Build.VERSION_CODES.P)
 @Composable
 fun Home(
     viewModel: HomeViewModel,

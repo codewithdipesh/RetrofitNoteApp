@@ -99,14 +99,41 @@ fun AddEditScreen(
                                 }else{
                                     viewModel.updateNoteDetails(id.toString())
                                     navController.navigateUp()
+                                    viewModel.updateTitle("")
+                                    viewModel.updateDescription("")
+                                    viewModel.updateFavorite(false)
+                                    viewModel.updateLockStatus(false)
                                 }
                             }else{
                                 if(state.title.isEmpty() || state.description.isEmpty()){
-                                    //do nothing
+                                    if(state.title.isEmpty() && state.description.isEmpty()){
+                                        //do nothing
+                                        navController.navigateUp()
+                                        //clear state
+                                        viewModel.updateTitle("")
+                                        viewModel.updateDescription("")
+                                        viewModel.updateFavorite(false)
+                                        viewModel.updateLockStatus(false)
+                                    }
+                                    else if(state.title.isEmpty()){
+                                        scope.launch {
+                                            Toast.makeText(context,"Title  can't be empty",Toast.LENGTH_SHORT).show()
+                                        }
+                                    }else{
+                                        scope.launch {
+                                            Toast.makeText(context,"Description can't be empty",Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
                                 }else{
                                     viewModel.createNote()
+                                    navController.navigateUp()
+                                    //clear state
+                                    viewModel.updateTitle("")
+                                    viewModel.updateDescription("")
+                                    viewModel.updateFavorite(false)
+                                    viewModel.updateLockStatus(false)
                                 }
-                                navController.navigateUp()
+
                             }
                         }
                 )

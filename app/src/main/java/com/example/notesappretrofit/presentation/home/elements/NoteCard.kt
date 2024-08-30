@@ -3,6 +3,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.provider.Settings
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -28,7 +29,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -54,8 +57,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.fragment.app.FragmentActivity
+import androidx.navigation.NavController
 import com.example.notesappretrofit.data.remote.note.dto.NoteData
 import com.example.notesappretrofit.presentation.home.elements.BiometricPromptManager.*
+import com.example.notesappretrofit.presentation.navigation.Screen
 import com.example.notesappretrofit.ui.theme.customfont
 import com.example.notesappretrofit.utils.getDatefromString
 import com.skydoves.cloudy.cloudy
@@ -65,8 +70,10 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun NoteCard(
+    biometricSelectedId:MutableState<Int?>,
+    biometricEnabled:MutableState<Boolean>,
     note: NoteData,
-    onClick :()-> Unit = {},
+    navController: NavController,
     onDelete:(Int)->Unit,
     graphicsLayer:GraphicsLayer,
     promptManager: BiometricPromptManager,
@@ -74,36 +81,9 @@ fun NoteCard(
     var showOptions by remember {
         mutableStateOf(false)
     }
+
     val scope = rememberCoroutineScope()
 
-    val biometricResult by promptManager.promptResult.collectAsState(
-        initial = null
-    )
-    val enrollLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult() ,
-        onResult = {
-
-        }
-    )
-    LaunchedEffect(biometricResult){
-        if(biometricResult is BiometricResult.AuthenticationNotSet){
-            if(Build.VERSION.SDK_INT >= 30){
-                val enrollIntent = Intent(Settings.ACTION_BIOMETRIC_ENROLL).apply {
-                    putExtra(
-                        Settings.EXTRA_BIOMETRIC_AUTHENTICATORS_ALLOWED,
-                        BIOMETRIC_STRONG or DEVICE_CREDENTIAL
-                    )
-                }
-                enrollLauncher.launch(enrollIntent)
-            }
-        }
-    }
-    LaunchedEffect(biometricResult) {
-        if (biometricResult is BiometricResult.AuthenticationSuccess) {
-            // Navigate after successful authentication
-            onClick()
-        }
-    }
 
 
     Box(modifier = Modifier
@@ -123,14 +103,17 @@ fun NoteCard(
                 },
                 onTap = {
                     if (note.isLocked) {
+                        biometricSelectedId.value = note.id
+                        Log.d("tap", biometricSelectedId.toString())
                         //locked note -> biometric->open
+                        biometricEnabled.value = true
                         promptManager.showBiometricPrompt(
                             title = "Authenticate",
                             description = "Please authenticate to access the note"
                         )
 
                     } else {
-                        onClick()
+                        navController.navigate(Screen.AddorEdit.route + "/${note.id}")
                     }
 
                 }
@@ -233,9 +216,3 @@ fun NoteCard(
     }
 
 }
-
-//@Preview(showBackground = true)
-//@Composable
-//fun NotecardPreview() {
-//    NoteCard(NoteData("2024-05-12","hi",1,"Purpose of life",true,false))
-//}

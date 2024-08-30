@@ -67,6 +67,17 @@ fun HomeView(
     }
     val context = LocalContext.current
 
+    val biometricResult by promptManager.promptResult.collectAsState(
+        initial = null
+    )
+    val biometricSelectedId = remember{
+        mutableStateOf<Int?>(null)
+    }
+
+    val biometricEnabled = remember{
+        mutableStateOf(false)
+    }
+
     Scaffold(
         containerColor = background_color,
         bottomBar = {
@@ -147,6 +158,16 @@ fun HomeView(
             }
         }
     ) {
+        if(biometricEnabled.value && biometricSelectedId.value != null){
+            BiometricResultHandler(
+                 biometricResult= biometricResult,
+                navController = navController,
+                selectedNoteId = biometricSelectedId ,
+                enabled = biometricEnabled
+            )
+        }
+
+
         Column(
 
             modifier = Modifier
@@ -159,9 +180,23 @@ fun HomeView(
 
             Spacer(modifier = Modifier.height(30.dp))
             if(subScreen == HomeScreen.ALLNOTES){
-                AllNotes(context = context,viewModel = viewModel,graphicsLayer = graphicsLayer, navController = navController,promptManager=promptManager)
+                AllNotes(
+                    viewModel = viewModel,
+                    graphicsLayer = graphicsLayer,
+                    navController = navController,
+                    promptManager=promptManager,
+                    biometricSelectedId =biometricSelectedId,
+                    biometricEnabled= biometricEnabled
+                )
             }else{
-                FavoriteNotes(context = context,viewModel = viewModel,graphicsLayer = graphicsLayer,navController = navController,promptManager=promptManager)
+                FavoriteNotes(
+                    viewModel = viewModel,
+                    graphicsLayer = graphicsLayer,
+                    navController = navController,
+                    promptManager=promptManager,
+                    biometricSelectedId=biometricSelectedId,
+                    biometricEnabled =biometricEnabled
+                    )
             }
 
 
