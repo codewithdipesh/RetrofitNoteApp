@@ -1,6 +1,7 @@
 package com.example.notesappretrofit.di
 
 import android.content.Context
+import com.example.notesappretrofit.BuildConfig
 import com.example.notesappretrofit.constant.AppConstant
 import com.example.notesappretrofit.data.local.TokenManager
 import com.example.notesappretrofit.data.remote.note.NoteApi
@@ -29,7 +30,7 @@ object AppModule {
     @Singleton
     fun provideRetrofit():Retrofit {
         return Retrofit.Builder()
-            .baseUrl("http://10.0.2.2:8080/api/v1/")
+            .baseUrl(BuildConfig.BACKEND_API)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
