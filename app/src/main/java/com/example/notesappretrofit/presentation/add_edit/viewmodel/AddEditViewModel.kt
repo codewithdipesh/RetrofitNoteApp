@@ -3,7 +3,7 @@ package com.example.notesappretrofit.presentation.add_edit.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.notesappretrofit.data.local.TokenManager
+import com.example.notesappretrofit.data.local.token.TokenManager
 import com.example.notesappretrofit.data.remote.note.dto.NoteRequest
 import com.example.notesappretrofit.domain.Result
 import com.example.notesappretrofit.domain.repository.NoteRepository
@@ -137,6 +137,17 @@ class AddEditViewModel @Inject constructor(
 
         }
 
+    }
+
+    fun resetState() {
+        _Uistate.update { currentState ->
+            currentState.copy(
+                title = "",
+                description = "",
+                isFavorite = false,
+                isLocked = false
+            )
+        }
     }
 
 

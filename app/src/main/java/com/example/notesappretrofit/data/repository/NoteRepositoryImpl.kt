@@ -1,25 +1,12 @@
 package com.example.notesappretrofit.data.repository
 
 
-import android.os.Build
-import androidx.annotation.RequiresExtension
-import com.example.notesappretrofit.data.local.TokenManager
 import com.example.notesappretrofit.data.remote.note.NoteApi
-import com.example.notesappretrofit.data.remote.note.dto.GetAllNotesResponse
-import com.example.notesappretrofit.data.remote.note.dto.NoteCreateResponse
-import com.example.notesappretrofit.data.remote.note.dto.NoteData
+import com.example.notesappretrofit.data.remote.note.dto.NoteDto
 import com.example.notesappretrofit.data.remote.note.dto.NoteRequest
-import com.example.notesappretrofit.data.remote.note.dto.NoteUpdatedDeletedResponse
-import com.example.notesappretrofit.data.remote.user.UserApi
-import com.example.notesappretrofit.data.remote.user.dto.UserChangePassResponse
-import com.example.notesappretrofit.data.remote.user.dto.UserChangePasswordRequest
-import com.example.notesappretrofit.data.remote.user.dto.UserLoginRegisterRequest
-import com.example.notesappretrofit.data.remote.user.dto.UserLoginRegisterResponse
 import com.example.notesappretrofit.domain.NoteError
 import com.example.notesappretrofit.domain.Result
-import com.example.notesappretrofit.domain.UserError
 import com.example.notesappretrofit.domain.repository.NoteRepository
-import com.example.notesappretrofit.domain.repository.UserRepository
 import okhttp3.ResponseBody
 import retrofit2.HttpException
 import retrofit2.Response
@@ -33,7 +20,7 @@ import javax.inject.Inject
      override suspend fun createNote(
          request: NoteRequest,
          token: String
-     ): Result<NoteData, NoteError> {
+     ): Result<NoteDto, NoteError> {
          return try {
              val result = api.createNote(request, token)
              if(result.status != 200) {
@@ -108,7 +95,7 @@ import javax.inject.Inject
          }
      }
 
-     override suspend fun getAllNotes(token: String): Result<List<NoteData>, NoteError> {
+     override suspend fun getAllNotes(token: String): Result<List<NoteDto>, NoteError> {
          return try {
              val result = api.getAllNotes(token)
              if(result.status != 200) {
@@ -132,7 +119,7 @@ import javax.inject.Inject
          }
      }
 
-     override suspend fun getNoteById(token: String, id: String): Result<NoteData, NoteError> {
+     override suspend fun getNoteById(token: String, id: String): Result<NoteDto, NoteError> {
          return try {
              val result = api.getNote(id,token)
              if(result.status != 200) {

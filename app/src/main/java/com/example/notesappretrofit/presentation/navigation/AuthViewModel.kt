@@ -2,8 +2,7 @@ package com.example.notesappretrofit.presentation.navigation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.notesappretrofit.data.local.TokenManager
-import com.example.notesappretrofit.presentation.register_login.viewmodels.UiState
+import com.example.notesappretrofit.data.local.token.TokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

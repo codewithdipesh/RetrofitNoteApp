@@ -4,8 +4,8 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.notesappretrofit.data.local.TokenManager
-import com.example.notesappretrofit.data.remote.note.dto.NoteData
+import com.example.notesappretrofit.data.local.token.TokenManager
+import com.example.notesappretrofit.data.remote.note.dto.NoteDto
 import com.example.notesappretrofit.domain.NoteError
 import com.example.notesappretrofit.domain.Result
 import com.example.notesappretrofit.domain.repository.NoteRepository
@@ -14,14 +14,10 @@ import com.example.notesappretrofit.presentation.home.elements.ConnectivityObser
 import com.example.notesappretrofit.utils.mapNoteErrorToMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.util.Calendar
 import javax.inject.Inject
 
@@ -39,13 +35,13 @@ class HomeViewModel @Inject constructor(
     val uiState : StateFlow<UiState<Boolean>> = _uistate.asStateFlow()
 
 
-    private val _notes = MutableStateFlow<List<NoteData>>(emptyList())
-    val notes : StateFlow<List<NoteData>> = _notes.asStateFlow()
+    private val _notes = MutableStateFlow<List<NoteDto>>(emptyList())
+    val notes : StateFlow<List<NoteDto>> = _notes.asStateFlow()
 
-    private val _favNotes = MutableStateFlow<List<NoteData>>(emptyList())
-    val favNotes : StateFlow<List<NoteData>> = _favNotes.asStateFlow()
+    private val _favNotes = MutableStateFlow<List<NoteDto>>(emptyList())
+    val favNotes : StateFlow<List<NoteDto>> = _favNotes.asStateFlow()
 
-    private var cachedNotes :List<NoteData> = emptyList()
+    private var cachedNotes :List<NoteDto> = emptyList()
 
     private val _greeting = MutableStateFlow<String>("")
     val greeting : StateFlow<String> = _greeting.asStateFlow()

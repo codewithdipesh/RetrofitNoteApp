@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName
 
 data class GetAllNotesResponse(
     @SerializedName("data")
-    val notes: List<NoteData>,
+    val notes: List<NoteDto>,
     val message: String,
     val status: Int
 )

@@ -2,7 +2,7 @@ package com.example.notesappretrofit.presentation.register_login.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.notesappretrofit.data.local.TokenManager
+import com.example.notesappretrofit.data.local.token.TokenManager
 import com.example.notesappretrofit.data.remote.user.dto.UserLoginRegisterRequest
 import com.example.notesappretrofit.domain.Result
 import com.example.notesappretrofit.domain.repository.UserRepository

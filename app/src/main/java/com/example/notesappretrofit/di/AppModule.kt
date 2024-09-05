@@ -2,8 +2,7 @@ package com.example.notesappretrofit.di
 
 import android.content.Context
 import com.example.notesappretrofit.BuildConfig
-import com.example.notesappretrofit.constant.AppConstant
-import com.example.notesappretrofit.data.local.TokenManager
+import com.example.notesappretrofit.data.local.token.TokenManager
 import com.example.notesappretrofit.data.remote.note.NoteApi
 import com.example.notesappretrofit.data.remote.user.UserApi
 import com.example.notesappretrofit.data.repository.NoteRepositoryImpl
@@ -19,7 +18,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import javax.inject.Inject
 import javax.inject.Singleton
 
 @Module
@@ -49,7 +47,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideTokenManager(@ApplicationContext context: Context):TokenManager{
+    fun provideTokenManager(@ApplicationContext context: Context): TokenManager {
         return TokenManager(context)
     }
     @Provides
