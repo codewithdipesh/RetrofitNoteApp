@@ -1,7 +1,11 @@
 package com.example.notesappretrofit.di
 
 import android.content.Context
+import androidx.compose.ui.platform.LocalContext
+import androidx.room.Room
+import androidx.room.RoomDatabase
 import com.example.notesappretrofit.BuildConfig
+import com.example.notesappretrofit.data.local.database.NoteDatabase
 import com.example.notesappretrofit.data.local.token.TokenManager
 import com.example.notesappretrofit.data.remote.note.NoteApi
 import com.example.notesappretrofit.data.remote.user.UserApi
@@ -31,6 +35,16 @@ object AppModule {
             .baseUrl(BuildConfig.BACKEND_API)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideRoomDatabase(@ApplicationContext context :Context):NoteDatabase{
+        return Room.databaseBuilder(
+            context,
+            NoteDatabase::class.java,
+            "note.db"
+        ).build()
     }
 
     @Provides

@@ -1,10 +1,9 @@
 package com.example.notesappretrofit.data.local.dao
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Update
 import com.example.notesappretrofit.data.local.entity.NoteEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -15,17 +14,16 @@ interface NoteDao{
     @Query("select * from NoteEntity")
     fun getAllNotes():Flow<List<NoteEntity>>
 
-    @Insert
-    suspend fun createNote(noteEntity: NoteEntity)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsertNote(noteEntity: NoteEntity)
 
-    @Update
-    suspend fun updateNote(noteEntity: NoteEntity)
-
-    @Delete
-    suspend fun deleteNote(noteEntity: NoteEntity)
+    @Query("delete from NoteEntity where id=:id")
+    suspend fun deleteNote(id: Int)
 
     @Query("select * from NoteEntity where id=:id")
     fun getNoteById(id:Int):Flow<NoteEntity>
+
+
 
 
 }
