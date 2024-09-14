@@ -2,12 +2,14 @@ package com.example.notesappretrofit.presentation.home.viewModel
 
 import android.content.Context
 import android.util.Log
+import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.notesappretrofit.data.local.token.TokenManager
 import com.example.notesappretrofit.data.remote.note.dto.NoteDto
 import com.example.notesappretrofit.domain.NoteError
 import com.example.notesappretrofit.domain.Result
+import com.example.notesappretrofit.domain.entity.Note
 import com.example.notesappretrofit.domain.repository.NoteRepository
 import com.example.notesappretrofit.domain.repository.UserRepository
 import com.example.notesappretrofit.presentation.home.elements.ConnectivityObserver
@@ -17,6 +19,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.util.Calendar
 import javax.inject.Inject
@@ -35,13 +38,13 @@ class HomeViewModel @Inject constructor(
     val uiState : StateFlow<UiState<Boolean>> = _uistate.asStateFlow()
 
 
-    private val _notes = MutableStateFlow<List<NoteDto>>(emptyList())
-    val notes : StateFlow<List<NoteDto>> = _notes.asStateFlow()
+    private val _notes = MutableStateFlow<List<Note>>(emptyList())
+    val notes : StateFlow<List<Note>> = _notes.asStateFlow()
 
-    private val _favNotes = MutableStateFlow<List<NoteDto>>(emptyList())
-    val favNotes : StateFlow<List<NoteDto>> = _favNotes.asStateFlow()
+    private val _favNotes = MutableStateFlow<List<Note>>(emptyList())
+    val favNotes : StateFlow<List<Note>> = _favNotes.asStateFlow()
 
-    private var cachedNotes :List<NoteDto> = emptyList()
+    private var cachedNotes :List<Note> = emptyList()
 
     private val _greeting = MutableStateFlow<String>("")
     val greeting : StateFlow<String> = _greeting.asStateFlow()
@@ -112,6 +115,28 @@ class HomeViewModel @Inject constructor(
            _notes.value = cachedNotes
        }
          Log.d("search",_notes.value.toString())
+    }
+
+    suspend fun fetchLocalCache(){
+        viewModelScope.launch {
+            val result = repository.getAllNotes()
+            when(result){
+                is Result.Error ->{
+                   UiState.Error("Something went wrong in Local cache")
+                }
+                is Result.Success -> {
+                    result.data.collect{
+                        _notes.value = it
+                        cachedNotes = it
+
+                        setFavNotes()
+                        // Set the greetings
+                        val greetingVal = getGreeting()
+                        _greeting.value = greetingVal
+                    }
+                }
+            }
+        }
     }
 
     suspend fun fetchData(token : String){
