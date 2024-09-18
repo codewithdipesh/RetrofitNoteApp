@@ -2,10 +2,13 @@ package com.example.notesappretrofit.presentation.home
 import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.platform.LocalContext
@@ -35,7 +38,7 @@ fun Home(
     val uistate by viewModel.uiState.collectAsState()
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
-
+    val snackBarHostState = remember { SnackbarHostState()}
     val graphicsLayer = rememberGraphicsLayer()
 
     //for the first time after register or login ,
@@ -55,26 +58,50 @@ fun Home(
                 navController.navigate(Screen.Login.route){
                     popUpTo(Screen.Home.route){inclusive= true}
                 }
-                Toast.makeText(context,"Unauthorized",Toast.LENGTH_SHORT).show()
+                snackBarHostState.showSnackbar(
+                    message = "Unauthorized",
+                    duration = SnackbarDuration.Short
+                )
                 viewModel.updateUiStateToNormal()
             }
         }
         if (uistate is UiState.Error){
             scope.launch{
-                Toast.makeText(context,(uistate as UiState.Error).error,Toast.LENGTH_SHORT).show()
+                snackBarHostState.showSnackbar(
+                    message = (uistate as UiState.Error).error ,
+                    duration = SnackbarDuration.Short
+                )
+                viewModel.updateUiStateToNormal()
             }
-            viewModel.updateUiStateToNormal()
+
+        }
+        if (uistate is UiState.NoInternet){
+            scope.launch{
+                snackBarHostState.showSnackbar(
+                    message = "No Internet Connection",
+                    duration = SnackbarDuration.Short
+                )
+                viewModel.updateUiStateToNormal()
+            }
+        }
+        if(uistate is UiState.ServerError){
+            scope.launch{
+                snackBarHostState.showSnackbar(
+                    message = "Something wrong in Server , Please try again after sometime",
+                    duration = SnackbarDuration.Short
+                )
+                viewModel.updateUiStateToNormal()
+            }
         }
     }
 
-    when (uistate) {
-        is UiState.Loading,UiState.Unauthorized -> AnimatedShimmer()
-        is UiState.NoInternet -> ConnectionLostScreen()
-        is UiState.ServerError -> ServerErrorScreen()
-        else ->{
-            HomeView(viewModel = viewModel,navController = navController,graphicsLayer = graphicsLayer,promptManager=promptManager)
-        }
-    }
+
+    HomeView(viewModel = viewModel,
+        navController = navController,
+        graphicsLayer = graphicsLayer,
+        promptManager=promptManager
+    )
+
 }
 
 
