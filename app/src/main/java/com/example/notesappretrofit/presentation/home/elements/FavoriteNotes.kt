@@ -75,7 +75,7 @@ fun FavoriteNotes(
                         navController = navController,
                         onDelete = {
                             scope.launch {
-                                viewModel.deleteNote(it.toString())
+                                viewModel.deleteNote(it)
                             }
                         })
                 }

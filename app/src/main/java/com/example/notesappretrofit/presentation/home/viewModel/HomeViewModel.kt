@@ -13,6 +13,7 @@ import com.example.notesappretrofit.domain.entity.Note
 import com.example.notesappretrofit.domain.repository.NoteRepository
 import com.example.notesappretrofit.domain.repository.UserRepository
 import com.example.notesappretrofit.presentation.home.elements.ConnectivityObserver
+import com.example.notesappretrofit.presentation.home.elements.ConnectivityObserver.Status.*
 import com.example.notesappretrofit.utils.mapNoteErrorToMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -34,7 +35,7 @@ class HomeViewModel @Inject constructor(
     @ApplicationContext private val context: Context
 ) :ViewModel(){
 
-    private val _uistate = MutableStateFlow<UiState<Boolean>>(UiState.Loading)
+    private val _uistate = MutableStateFlow<UiState<Boolean>>(UiState.Initial)
     val uiState : StateFlow<UiState<Boolean>> = _uistate.asStateFlow()
 
 
@@ -59,6 +60,9 @@ class HomeViewModel @Inject constructor(
         private set
     init {
         observeNetwork()
+        viewModelScope.launch {
+            fetchLocalCache()
+        }
 
     }
 
@@ -68,15 +72,26 @@ class HomeViewModel @Inject constructor(
             connectivityObserver.observer()
                 .collect(){status->
                     when(status){
-                         ConnectivityObserver.Status.Available->{
-                             if (!isFetched) { // Only fetch data if it hasn't been fetched yet
-                                 val token = tokenManager.getToken()
-                                 if (token != null) {
-                                     fetchData(token)
+                         Available ->{
+                             val token = tokenManager.getToken()
+                             if(token != null){
+                                 val response = userRepo.authenticate(token)
+                                 when(response){
+                                     is Result.Error -> {
+
+                                         _uistate.value = UiState.Unauthorized
+                                     }
+                                     is Result.Success -> {
+                                         if (!isFetched) { // Only fetch data if it hasn't been fetched yet
+                                             syncNotes(token)
+                                         }
+                                     }
                                  }
+
                              }
+
                         }
-                        ConnectivityObserver.Status.Lost, ConnectivityObserver.Status.Unavailable -> {
+                        Lost, Unavailable -> {
                             _uistate.value = UiState.NoInternet
                             isFetched =false
                             isInitiatedNotes = false
@@ -139,64 +154,32 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    suspend fun fetchData(token : String){
-        Log.d("fetching","called")
-        //TODO fetch the username fo logo
-            viewModelScope.launch {
-                _uistate.value = UiState.Loading
-                val response = repository.getAllNotes(token)
-                when(response){
-                    is Result.Error -> {
-                        when(response.error){
-                            NoteError.SERVER_ERROR,NoteError.NETWORK_ERROR ->{
-                                _uistate.value = UiState.ServerError
-                            }
-                            NoteError.UNAUTHORIZED ->{
-                                _uistate.value =UiState.Unauthorized
-                            }
-                            else -> {
-                                _uistate.value = UiState.Error(mapNoteErrorToMessage(response.error))
-                            }
-                        }
-                    }
-                    is Result.Success ->{
-                        _notes.value = response.data
-                        cachedNotes = response.data
-
-                        setFavNotes()
-                        //set the greetings
-                        val greetingVal = getGreeting()
-                        _greeting.value = greetingVal
-
-                        val name = userRepo.getUsername(token)
-                            when(name){
-                                is Result.Error -> {}//as we are here then it will never error
-                                is Result.Success-> {
-                                    _username.value = name.data
-                                }
-
-                            }
-
-                            _uistate.value = UiState.Initial
-                            isFetched = true
-                            isInitiatedNotes = true
-
-
-                    }
+    private suspend fun syncNotes(token : String){
+        val result = repository.syncNotes(token)
+        when(result){
+            is Result.Error -> {
+                when (result.error) {
+                    NoteError.NETWORK_ERROR -> _uistate.value = UiState.NoInternet
+                    NoteError.UNAUTHORIZED -> _uistate.value = UiState.Unauthorized
+                    else -> _uistate.value = UiState.ServerError
                 }
             }
+            is Result.Success -> {
+                // Fetch from local cache after sync
+                fetchLocalCache()
+                isFetched = true
+                isInitiatedNotes = true
+            }
+        }
     }
-
-
     suspend fun refreshNotes() {
-
             val token = tokenManager.getToken()
             if (token == null) {
                 //unauthorized
                 _uistate.value = UiState.Unauthorized
                 return
             }
-            val response = repository.getAllNotes(token)
+            val response = repository.syncNotes(token)
             when (response) {
                 is Result.Error -> {
                     when (response.error) {
@@ -218,12 +201,7 @@ class HomeViewModel @Inject constructor(
                 }
 
                 is Result.Success -> {
-                    _notes.value = response.data
-                    cachedNotes = response.data
-
-                    setFavNotes()
-
-                    isFetched = true
+                   fetchLocalCache()
 
                 }
 
@@ -231,41 +209,33 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    suspend fun deleteNote(id:String) {
-
-        val token = tokenManager.getToken()
-        if (token == null) {
-            _uistate.value = UiState.Unauthorized
-            return
-        }
-        val response = repository.deleteNote(id,token)
-        when (response) {
-            is Result.Error -> {
-                when (response.error) {
-                    NoteError.SERVER_ERROR, NoteError.NETWORK_ERROR -> {
-                        _uistate.value = UiState.ServerError
-
+    suspend fun deleteNote(id:Int) {
+        viewModelScope.launch {
+            // Save note locally first
+            val result = repository.deleteNote(id)
+            if (result is Result.Success) {
+                fetchLocalCache() // Refresh local cache to show updated data
+                // Check if network is available
+                connectivityObserver.observer().collect{status->
+                    when(status){
+                        Available -> {
+                            // Try syncing immediately if network is available
+                            val token = tokenManager.getToken()
+                            if (token != null) {
+                                syncNotes(token)
+                            }
+                        }
+                        Unavailable,Lost -> {
+                            _uistate.value = UiState.NoInternet
+                        }
                     }
 
-                    NoteError.UNAUTHORIZED -> {
-                        _uistate.value = UiState.Unauthorized
-
-                    }
-
-                    else -> {
-                        _uistate.value = UiState.Error(mapNoteErrorToMessage(response.error))
-
-                    }
                 }
             }
-
-            is Result.Success -> {
-                refreshNotes()
-            }
-
-
         }
     }
+
+
 
 
     private  fun getGreeting():String{

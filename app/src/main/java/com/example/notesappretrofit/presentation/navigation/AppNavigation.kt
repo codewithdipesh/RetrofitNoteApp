@@ -1,5 +1,7 @@
 package com.example.notesappretrofit.presentation.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -23,6 +25,7 @@ import com.example.notesappretrofit.presentation.register_login.RegisterScreen
 import com.example.notesappretrofit.presentation.register_login.viewmodels.RegisterLoginViewModel
 import com.example.notesappretrofit.ui.theme.backgroungGray
 
+@RequiresApi(Build.VERSION_CODES.P)
 @Composable
 fun AppNavigation(
    navController: NavHostController,

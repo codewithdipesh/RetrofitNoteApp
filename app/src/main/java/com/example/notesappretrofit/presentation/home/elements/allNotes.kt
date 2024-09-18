@@ -69,7 +69,7 @@ fun AllNotes(
                           navController = navController,
                           onDelete = {
                               scope.launch {
-                                  viewModel.deleteNote(it.toString())
+                                  viewModel.deleteNote(it)
                               }
 
                           }

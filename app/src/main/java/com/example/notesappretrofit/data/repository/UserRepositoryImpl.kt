@@ -117,8 +117,7 @@ import javax.inject.Inject
          }catch (e : HttpException){
              when(e.code()){
                  //Custom Error from Backend
-                 401,403->Result.Error(UserError.UNAUTHORIZED)
-                 500 -> Result.Error(UserError.SERVER_ERROR)
+                 401,403,500->Result.Error(UserError.UNAUTHORIZED)
                  else -> Result.Error(UserError.UNKNOWN_ERROR)
              }
          }catch(e:Exception){

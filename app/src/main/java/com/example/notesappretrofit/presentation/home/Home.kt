@@ -1,5 +1,6 @@
 package com.example.notesappretrofit.presentation.home
 import android.os.Build
+import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.material3.SnackbarDuration
@@ -37,7 +38,6 @@ fun Home(
     
     val uistate by viewModel.uiState.collectAsState()
     val scope = rememberCoroutineScope()
-    val context = LocalContext.current
     val snackBarHostState = remember { SnackbarHostState()}
     val graphicsLayer = rememberGraphicsLayer()
 
@@ -46,18 +46,19 @@ fun Home(
     LaunchedEffect(Unit){
         val token = viewModel.getToken()
         if (token != null) {
-            viewModel.fetchData(token)
+            viewModel.fetchLocalCache()
         }
     }
 
     LaunchedEffect(uistate){
         if(uistate is UiState.Unauthorized){
             scope.launch {
+                Log.d("home","unauthorized")
                 //delete the token and isAuthorized otherwise it will return to homescreen
-                authViewModel.resetAuthState()
-                navController.navigate(Screen.Login.route){
-                    popUpTo(Screen.Home.route){inclusive= true}
-                }
+//                authViewModel.resetAuthState()
+//                navController.navigate(Screen.Login.route){
+//                    popUpTo(Screen.Home.route){inclusive= true}
+//                }
                 snackBarHostState.showSnackbar(
                     message = "Unauthorized",
                     duration = SnackbarDuration.Short

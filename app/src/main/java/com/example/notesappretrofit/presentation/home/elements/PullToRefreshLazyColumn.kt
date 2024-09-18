@@ -18,12 +18,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import com.example.notesappretrofit.data.remote.note.dto.NoteDto
+import com.example.notesappretrofit.domain.entity.Note
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun  PullToRefreshLazyColumn(
-    items : List<NoteDto>,
-    content: @Composable (NoteDto)-> Unit,
+    items : List<Note>,
+    content: @Composable (Note)-> Unit,
     isRefreshing : Boolean,
     onRefresh:()-> Unit,
     modifier:Modifier = Modifier

@@ -59,172 +59,172 @@ fun AddEditScreen(
 
     val context = LocalContext.current
 
-    LaunchedEffect(Unit){
-        if(id != 0){
-            viewModel.fetchNoteDetails(id.toString())
-        }else{
-            viewModel.updateTitle("")
-            viewModel.updateDescription("")
-            viewModel.updateFavorite(false)
-            viewModel.updateLockStatus(false)
-        }
-    }
+//    LaunchedEffect(Unit){
+//        if(id != 0){
+//            viewModel.fetchNoteDetails(id.toString())
+//        }else{
+//            viewModel.updateTitle("")
+//            viewModel.updateDescription("")
+//            viewModel.updateFavorite(false)
+//            viewModel.updateLockStatus(false)
+//        }
+//    }
 
-    DisposableEffect(Unit) {
-        onDispose {
-            viewModel.resetState()
-        }
-    }
+//    DisposableEffect(Unit) {
+//        onDispose {
+//            viewModel.resetState()
+//        }
+//    }
 
-
-    Scaffold (
-        containerColor = colorResource(id = R.color.background),
-        topBar = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-
-                Image(
-                    painter = painterResource(id = R.drawable.back_navigation) ,
-                    contentDescription = "back navigation",
-                    modifier = Modifier
-                        .clickable {
-                            if(id != 0){
-                                if(state.title.isEmpty() || state.description.isEmpty()){
-                                    scope.launch {
-                                        Toast.makeText(context,"Title and description can't be empty",Toast.LENGTH_SHORT).show()
-                                    }
-                                }else{
-                                    viewModel.updateNoteDetails(id.toString())
-                                    navController.navigateUp()
-                                }
-                            }else{
-                                if(state.title.isEmpty() || state.description.isEmpty()){
-                                    if(state.title.isEmpty() && state.description.isEmpty()){
-                                        //do nothing
-                                        navController.navigateUp()
-
-                                    }
-                                    else if(state.title.isEmpty()){
-                                        scope.launch {
-                                            Toast.makeText(context,"Title  can't be empty",Toast.LENGTH_SHORT).show()
-                                        }
-                                    }else{
-                                        scope.launch {
-                                            Toast.makeText(context,"Description can't be empty",Toast.LENGTH_SHORT).show()
-                                        }
-                                    }
-                                }else{
-                                    viewModel.createNote()
-                                    navController.navigateUp()
-
-                                }
-
-                            }
-                        }
-                )
-
-                Image(
-                    painter = painterResource(id = R.drawable.more_option_button),
-                    contentDescription = "more option",
-                    modifier = Modifier
-                        .clickable {
-                            expanded = true
-                        }
-                )
-
-            }
-        }
-    ){
-        Surface (modifier = Modifier
-            .fillMaxSize()
-            .padding(it),
-            color = colorResource(id = R.color.background)
-        ) {
-            //Drop Down menu
-            Box(
-                modifier = Modifier
-                    .fillMaxSize() //TODO FIX MENU POSITION
-                    .padding(end = 16.dp, top = 16.dp, start = 250.dp),
-                contentAlignment = Alignment.TopEnd
-            ) {
-                DropDownMenuOptions(
-                    locked = state.isLocked,
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false },
-                    toggleLockStatus = {
-                        scope.launch {
-                            expanded = false
-                            delay(300)
-                            viewModel.updateLockStatus(!state.isLocked)
-                        }
-
-                    }
-                )
-            }
-
-        }
-            //Favorite Icon
-            Column(
-                modifier = Modifier.
-                padding(it)
-            ) {
-
-                Box(modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 2.dp),
-                    contentAlignment = Alignment.CenterEnd
-                ){
-                    Log.d("Icon",state.isFavorite.toString())
-                    LoveIcon(
-                        state = state,
-                        onClick = {
-                            viewModel.updateFavorite(!state.isFavorite)
-                        }
-                    )
-                }
-                //Fields
-                CustomTextField(
-                    label = "Enter Title",
-                    value = state.title,
-                    onValueChanged ={
-                        viewModel.updateTitle(it)
-                    } ,
-                    maxline = 3,
-                    fontWeight = FontWeight.ExtraBold,
-                    fontSize = 30.sp,
-                    context = context,
-                    modifier = Modifier.padding(16.dp)
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    text = getDatefromString(state.createdAt),
-                    color = colorResource(id = R.color.date_color),
-                    fontSize = 14.sp,
-                    modifier = Modifier.padding(16.dp)
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-                CustomTextField(
-                    label = "Enter Description",
-                    value = state.description,
-                    onValueChanged ={
-                        viewModel.updateDescription(it)
-                    } ,
-                    maxline = 100,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp,
-                    context = context,
-                    modifier = Modifier.padding(16.dp)
-                )
-
-        }
-
-    }
-
+//
+//    Scaffold (
+//        containerColor = colorResource(id = R.color.background),
+//        topBar = {
+//            Row(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .padding(horizontal = 16.dp, vertical = 16.dp),
+//                horizontalArrangement = Arrangement.SpaceBetween,
+//                verticalAlignment = Alignment.CenterVertically
+//            ) {
+//
+//                Image(
+//                    painter = painterResource(id = R.drawable.back_navigation) ,
+//                    contentDescription = "back navigation",
+//                    modifier = Modifier
+//                        .clickable {
+//                            if(id != 0){
+//                                if(state.title.isEmpty() || state.description.isEmpty()){
+//                                    scope.launch {
+//                                        Toast.makeText(context,"Title and description can't be empty",Toast.LENGTH_SHORT).show()
+//                                    }
+//                                }else{
+//                                    viewModel.updateNoteDetails(id.toString())
+//                                    navController.navigateUp()
+//                                }
+//                            }else{
+//                                if(state.title.isEmpty() || state.description.isEmpty()){
+//                                    if(state.title.isEmpty() && state.description.isEmpty()){
+//                                        //do nothing
+//                                        navController.navigateUp()
+//
+//                                    }
+//                                    else if(state.title.isEmpty()){
+//                                        scope.launch {
+//                                            Toast.makeText(context,"Title  can't be empty",Toast.LENGTH_SHORT).show()
+//                                        }
+//                                    }else{
+//                                        scope.launch {
+//                                            Toast.makeText(context,"Description can't be empty",Toast.LENGTH_SHORT).show()
+//                                        }
+//                                    }
+//                                }else{
+//                                    viewModel.createNote()
+//                                    navController.navigateUp()
+//
+//                                }
+//
+//                            }
+//                        }
+//                )
+//
+//                Image(
+//                    painter = painterResource(id = R.drawable.more_option_button),
+//                    contentDescription = "more option",
+//                    modifier = Modifier
+//                        .clickable {
+//                            expanded = true
+//                        }
+//                )
+//
+//            }
+//        }
+//    ){
+//        Surface (modifier = Modifier
+//            .fillMaxSize()
+//            .padding(it),
+//            color = colorResource(id = R.color.background)
+//        ) {
+//            //Drop Down menu
+//            Box(
+//                modifier = Modifier
+//                    .fillMaxSize() //TODO FIX MENU POSITION
+//                    .padding(end = 16.dp, top = 16.dp, start = 250.dp),
+//                contentAlignment = Alignment.TopEnd
+//            ) {
+//                DropDownMenuOptions(
+//                    locked = state.isLocked,
+//                    expanded = expanded,
+//                    onDismissRequest = { expanded = false },
+//                    toggleLockStatus = {
+//                        scope.launch {
+//                            expanded = false
+//                            delay(300)
+//                            viewModel.updateLockStatus(!state.isLocked)
+//                        }
+//
+//                    }
+//                )
+//            }
+//
+//        }
+//            //Favorite Icon
+//            Column(
+//                modifier = Modifier.
+//                padding(it)
+//            ) {
+//
+//                Box(modifier = Modifier
+//                    .fillMaxWidth()
+//                    .padding(vertical = 2.dp),
+//                    contentAlignment = Alignment.CenterEnd
+//                ){
+//                    Log.d("Icon",state.isFavorite.toString())
+//                    LoveIcon(
+//                        state = state,
+//                        onClick = {
+//                            viewModel.updateFavorite(!state.isFavorite)
+//                        }
+//                    )
+//                }
+//                //Fields
+//                CustomTextField(
+//                    label = "Enter Title",
+//                    value = state.title,
+//                    onValueChanged ={
+//                        viewModel.updateTitle(it)
+//                    } ,
+//                    maxline = 3,
+//                    fontWeight = FontWeight.ExtraBold,
+//                    fontSize = 30.sp,
+//                    context = context,
+//                    modifier = Modifier.padding(16.dp)
+//                )
+//                Spacer(modifier = Modifier.height(8.dp))
+//
+//                Text(
+//                    text = getDatefromString(state.createdAt),
+//                    color = colorResource(id = R.color.date_color),
+//                    fontSize = 14.sp,
+//                    modifier = Modifier.padding(16.dp)
+//                )
+//
+//                Spacer(modifier = Modifier.height(8.dp))
+//                CustomTextField(
+//                    label = "Enter Description",
+//                    value = state.description,
+//                    onValueChanged ={
+//                        viewModel.updateDescription(it)
+//                    } ,
+//                    maxline = 100,
+//                    fontWeight = FontWeight.Bold,
+//                    fontSize = 20.sp,
+//                    context = context,
+//                    modifier = Modifier.padding(16.dp)
+//                )
+//
+//        }
+//
+//    }
+//
 }

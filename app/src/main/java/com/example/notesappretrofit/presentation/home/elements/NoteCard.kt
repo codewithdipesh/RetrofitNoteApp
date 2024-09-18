@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.notesappretrofit.data.remote.note.dto.NoteDto
+import com.example.notesappretrofit.domain.entity.Note
 import com.example.notesappretrofit.presentation.navigation.Screen
 import com.example.notesappretrofit.ui.theme.customfont
 import com.example.notesappretrofit.utils.getDatefromString
@@ -52,7 +53,7 @@ import kotlinx.coroutines.launch
 fun NoteCard(
     biometricSelectedId:MutableState<Int?>,
     biometricEnabled:MutableState<Boolean>,
-    note: NoteDto,
+    note: Note,
     navController: NavController,
     onDelete:(Int)->Unit,
     graphicsLayer:GraphicsLayer,

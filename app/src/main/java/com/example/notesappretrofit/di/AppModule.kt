@@ -5,6 +5,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.notesappretrofit.BuildConfig
+import com.example.notesappretrofit.data.local.dao.NoteDao
 import com.example.notesappretrofit.data.local.database.NoteDatabase
 import com.example.notesappretrofit.data.local.token.TokenManager
 import com.example.notesappretrofit.data.remote.note.NoteApi
@@ -78,13 +79,19 @@ object AppModule {
     ):UserRepository{
         return UserRepositoryImpl(api,tokenManager)
     }
+    @Provides
+    @Singleton
+    fun provideDao(noteDatabase: NoteDatabase):NoteDao{
+        return noteDatabase.dao
+    }
 
     @Provides
     @Singleton
     fun provideNoteRepository(
-        api: NoteApi
+        api: NoteApi,
+        local:NoteDao
     ):NoteRepository{
-        return  NoteRepositoryImpl(api)
+        return  NoteRepositoryImpl(api,local)
     }
 
 
