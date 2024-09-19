@@ -54,6 +54,7 @@ class HomeViewModel @Inject constructor(
     val username : StateFlow<String> = _username.asStateFlow()
 
 
+
     private var isInitiatedNotes = false
 
     private var isFetched = false
@@ -75,10 +76,11 @@ class HomeViewModel @Inject constructor(
                          Available ->{
                              val token = tokenManager.getToken()
                              if(token != null){
+                                 Log.d("jwt",token)
                                  val response = userRepo.authenticate(token)
                                  when(response){
                                      is Result.Error -> {
-
+                                          Log.d("homeviewmodel",response.error.toString())
                                          _uistate.value = UiState.Unauthorized
                                      }
                                      is Result.Success -> {
@@ -169,6 +171,12 @@ class HomeViewModel @Inject constructor(
                 fetchLocalCache()
                 isFetched = true
                 isInitiatedNotes = true
+
+                val usernameResponse = userRepo.getUsername(token)
+                if(usernameResponse is Result.Success){
+                    _username.value = usernameResponse.data
+                }
+
             }
         }
     }

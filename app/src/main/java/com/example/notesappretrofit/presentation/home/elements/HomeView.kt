@@ -56,7 +56,8 @@ fun HomeView(
     viewModel: HomeViewModel,
     navController: NavController,
     graphicsLayer: GraphicsLayer,
-    promptManager:BiometricPromptManager
+    promptManager:BiometricPromptManager,
+    modifier: Modifier = Modifier
 ) {
 
     val background_color: Color = colorResource(id = R.color.background)

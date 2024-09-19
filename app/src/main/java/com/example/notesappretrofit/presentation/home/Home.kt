@@ -3,7 +3,10 @@ import android.os.Build
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -11,6 +14,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
@@ -41,67 +45,75 @@ fun Home(
     val snackBarHostState = remember { SnackbarHostState()}
     val graphicsLayer = rememberGraphicsLayer()
 
-    //for the first time after register or login ,
-    //fetching the data
-    LaunchedEffect(Unit){
-        val token = viewModel.getToken()
-        if (token != null) {
-            viewModel.fetchLocalCache()
+    Scaffold(
+        snackbarHost = {
+        SnackbarHost(hostState =snackBarHostState)
+    })
+    {
+        //for the first time after register or login ,
+        //fetching the data
+        LaunchedEffect(Unit){
+            val token = viewModel.getToken()
+            if (token != null) {
+                viewModel.fetchLocalCache()
+            }
         }
+
+        LaunchedEffect(uistate){
+            if(uistate is UiState.Unauthorized){
+                scope.launch {
+                    Log.d("home","unauthorized")
+                    //delete the token and isAuthorized otherwise it will return to homescreen
+                authViewModel.resetAuthState()
+                navController.navigate(Screen.Login.route){
+                    popUpTo(Screen.Home.route){inclusive= true}
+                }
+                    snackBarHostState.showSnackbar(
+                        message = "Unauthorized",
+                        duration = SnackbarDuration.Short
+                    )
+                    viewModel.updateUiStateToNormal()
+                }
+            }
+            if (uistate is UiState.Error){
+                scope.launch{
+                    snackBarHostState.showSnackbar(
+                        message = (uistate as UiState.Error).error ,
+                        duration = SnackbarDuration.Short
+                    )
+                    viewModel.updateUiStateToNormal()
+                }
+
+            }
+            if (uistate is UiState.NoInternet){
+                scope.launch{
+                    snackBarHostState.showSnackbar(
+                        message = "No Internet Connection",
+                        duration = SnackbarDuration.Short
+                    )
+                    viewModel.updateUiStateToNormal()
+                }
+            }
+            if(uistate is UiState.ServerError){
+                scope.launch{
+                    snackBarHostState.showSnackbar(
+                        message = "Something wrong in Server , Please try again after sometime",
+                        duration = SnackbarDuration.Short
+                    )
+                    viewModel.updateUiStateToNormal()
+                }
+            }
+        }
+
+
+        HomeView(viewModel = viewModel,
+            navController = navController,
+            graphicsLayer = graphicsLayer,
+            promptManager=promptManager,
+            modifier =Modifier.padding(it)
+        )
     }
 
-    LaunchedEffect(uistate){
-        if(uistate is UiState.Unauthorized){
-            scope.launch {
-                Log.d("home","unauthorized")
-                //delete the token and isAuthorized otherwise it will return to homescreen
-//                authViewModel.resetAuthState()
-//                navController.navigate(Screen.Login.route){
-//                    popUpTo(Screen.Home.route){inclusive= true}
-//                }
-                snackBarHostState.showSnackbar(
-                    message = "Unauthorized",
-                    duration = SnackbarDuration.Short
-                )
-                viewModel.updateUiStateToNormal()
-            }
-        }
-        if (uistate is UiState.Error){
-            scope.launch{
-                snackBarHostState.showSnackbar(
-                    message = (uistate as UiState.Error).error ,
-                    duration = SnackbarDuration.Short
-                )
-                viewModel.updateUiStateToNormal()
-            }
-
-        }
-        if (uistate is UiState.NoInternet){
-            scope.launch{
-                snackBarHostState.showSnackbar(
-                    message = "No Internet Connection",
-                    duration = SnackbarDuration.Short
-                )
-                viewModel.updateUiStateToNormal()
-            }
-        }
-        if(uistate is UiState.ServerError){
-            scope.launch{
-                snackBarHostState.showSnackbar(
-                    message = "Something wrong in Server , Please try again after sometime",
-                    duration = SnackbarDuration.Short
-                )
-                viewModel.updateUiStateToNormal()
-            }
-        }
-    }
-
-
-    HomeView(viewModel = viewModel,
-        navController = navController,
-        graphicsLayer = graphicsLayer,
-        promptManager=promptManager
-    )
 
 }
 
