@@ -59,6 +59,7 @@ fun AddEditScreen(
 
     val context = LocalContext.current
 
+
     LaunchedEffect(Unit){
         if(id != 0){
             viewModel.fetchNoteDetails(id.toString())

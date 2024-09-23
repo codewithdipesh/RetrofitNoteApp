@@ -29,6 +29,8 @@ class AddEditViewModel @Inject constructor(
     private val _Uistate = MutableStateFlow<NoteUi>(NoteUi())
     val UiState : StateFlow<NoteUi> = _Uistate.asStateFlow()
 
+    private val _initialDetails = MutableStateFlow<NoteUi>(NoteUi())
+    val initialDetails : StateFlow<NoteUi> = _initialDetails.asStateFlow()
 
     fun updateTitle(title: String) {
         _Uistate.update { it.copy(title = title) }
@@ -59,6 +61,16 @@ class AddEditViewModel @Inject constructor(
                     is Result.Success -> {
                         response.data.collect{ note ->
                             Log.d("add_edit_viewmodel","repsonse_"+note)
+                            _initialDetails.update {
+                                it.copy(
+                                    id = note.id,
+                                    title = note.title,
+                                    description = note.description,
+                                    isFavorite = note.isFavorite,
+                                    isLocked =  note.isLocked,
+                                    createdAt = note.createdAt
+                                )
+                            }
                             _Uistate.update {
                                 it.copy(
                                     id = note.id,
@@ -93,29 +105,38 @@ class AddEditViewModel @Inject constructor(
     }
     fun updateNoteDetails(id:Int){
         viewModelScope.launch {
-                val response = repository.updateNote(
-                    NoteRequest(
-                       title =  _Uistate.value.title,
-                       description =  _Uistate.value.description,
-                       isLocked =  _Uistate.value.isLocked,
-                       isFavorite =  _Uistate.value.isFavorite,
-                       createdAt = _Uistate.value.createdAt
-                    ) ,
-                    id
-                )
-                when(response){
-                    is Result.Success -> {
+               if(checkChangesInDetails()){//if any change in details then update only
+                   val response = repository.updateNote(
+                       NoteRequest(
+                           title =  _Uistate.value.title,
+                           description =  _Uistate.value.description,
+                           isLocked =  _Uistate.value.isLocked,
+                           isFavorite =  _Uistate.value.isFavorite,
+                           createdAt = _Uistate.value.createdAt
+                       ) ,
+                       id
+                   )
+                   when(response){
+                       is Result.Success -> {
 
-                    }
-                    is Result.Error ->{
-                        Log.d("update error",response.toString())
-                    }
-                }
-
-
+                       }
+                       is Result.Error ->{
+                           Log.d("update error",response.toString())
+                       }
+                   }
+               }
 
         }
 
+    }
+
+    fun checkChangesInDetails():Boolean{
+        if(_initialDetails.value.title != _Uistate.value.title
+            || _initialDetails.value.description != _Uistate.value.description
+            || _initialDetails.value.isLocked != _Uistate.value.isLocked
+            || _initialDetails.value.isFavorite != _Uistate.value.isFavorite
+            )  return true
+        else return false
     }
 
     fun createNote(){
