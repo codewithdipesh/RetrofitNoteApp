@@ -9,12 +9,15 @@ import com.example.notesappretrofit.data.local.token.TokenManager
 import com.example.notesappretrofit.data.remote.note.dto.NoteDto
 import com.example.notesappretrofit.domain.NoteError
 import com.example.notesappretrofit.domain.Result
+import com.example.notesappretrofit.domain.UserError
+import com.example.notesappretrofit.domain.UserError.*
 import com.example.notesappretrofit.domain.entity.Note
 import com.example.notesappretrofit.domain.repository.NoteRepository
 import com.example.notesappretrofit.domain.repository.UserRepository
 import com.example.notesappretrofit.presentation.home.elements.ConnectivityObserver
 import com.example.notesappretrofit.presentation.home.elements.ConnectivityObserver.Status.*
 import com.example.notesappretrofit.utils.mapNoteErrorToMessage
+import com.example.notesappretrofit.utils.mapUserErrorToMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -80,8 +83,11 @@ class HomeViewModel @Inject constructor(
                                  val response = userRepo.authenticate(token)
                                  when(response){
                                      is Result.Error -> {
-                                          Log.d("homeviewmodel",response.error.toString())
-                                         _uistate.value = UiState.Unauthorized
+                                         when(response.error){
+                                             UNAUTHORIZED -> _uistate.value = UiState.Unauthorized
+                                             SERVER_ERROR,NETWORK_ERROR -> _uistate.value = UiState.ServerError
+                                             else -> _uistate.value = UiState.Error(mapUserErrorToMessage(response.error))
+                                         }
                                      }
                                      is Result.Success -> {
                                          if (!isFetched) { // Only fetch data if it hasn't been fetched yet
@@ -156,8 +162,9 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private suspend fun syncNotes(token : String){
-        val result = repository.syncNotes(token)
+     suspend fun syncNotes(token : String){
+
+        val result = repository.syncNotes()
         when(result){
             is Result.Error -> {
                 when (result.error) {
@@ -187,7 +194,7 @@ class HomeViewModel @Inject constructor(
                 _uistate.value = UiState.Unauthorized
                 return
             }
-            val response = repository.syncNotes(token)
+            val response = repository.syncNotes()
             when (response) {
                 is Result.Error -> {
                     when (response.error) {

@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.compose.ui.platform.LocalContext
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.work.WorkManager
+import androidx.work.impl.Migration_1_2
 import com.example.notesappretrofit.BuildConfig
 import com.example.notesappretrofit.data.local.dao.NoteDao
 import com.example.notesappretrofit.data.local.database.NoteDatabase
@@ -40,7 +42,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideRoomDatabase(@ApplicationContext context :Context):NoteDatabase{
+    fun provideRoomDatabase(@ApplicationContext context: Context): NoteDatabase {
         return Room.databaseBuilder(
             context,
             NoteDatabase::class.java,
@@ -89,9 +91,10 @@ object AppModule {
     @Singleton
     fun provideNoteRepository(
         api: NoteApi,
-        local:NoteDao
+        local:NoteDao,
+        tokenManager: TokenManager
     ):NoteRepository{
-        return  NoteRepositoryImpl(api,local)
+        return  NoteRepositoryImpl(api,local,tokenManager)
     }
 
 

@@ -1,5 +1,6 @@
 package com.example.notesappretrofit.data.mappers
 
+import com.example.notesappretrofit.data.local.entity.DeletedNoteEntity
 import com.example.notesappretrofit.data.local.entity.NoteEntity
 import com.example.notesappretrofit.data.remote.note.dto.NoteDto
 import com.example.notesappretrofit.data.remote.note.dto.NoteRequest
@@ -25,7 +26,8 @@ fun NoteEntity.toNote():Note{
         description = description,
         title = title ,
         isLocked = isLocked,
-        isFavorite= isFavorite
+        isFavorite= isFavorite,
+        hasSynced = hasSynced
     )
 }
 
@@ -38,5 +40,26 @@ fun NoteRequest.toNoteEntity():NoteEntity{
         isLocked = isLocked,
         isFavorite= isFavorite,
         hasSynced = true
+    )
+}
+fun NoteEntity.toNoteRequest():NoteRequest{
+    return NoteRequest(
+        id = id,
+        createdAt = createdAt,
+        description = description,
+        title = title ,
+        isLocked = isLocked,
+        isFavorite= isFavorite
+    )
+}
+
+fun NoteEntity.toDeleteEntity():DeletedNoteEntity{
+    return DeletedNoteEntity(
+        id = id,
+        createdAt = createdAt,
+        description = description,
+        title = title ,
+        isLocked = isLocked,
+        isFavorite= isFavorite
     )
 }

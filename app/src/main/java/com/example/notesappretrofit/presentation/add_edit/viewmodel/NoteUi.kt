@@ -4,6 +4,7 @@ import com.example.notesappretrofit.utils.getCurrentDate
 import java.time.LocalDate
 
 data class NoteUi(
+    var id:Int = 0,
     var title:String = "",
     val description:String = "",
     val isFavorite:Boolean = false,

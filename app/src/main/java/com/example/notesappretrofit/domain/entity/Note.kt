@@ -8,5 +8,6 @@ data class Note(
     val description: String,
     val title: String,
     val isLocked : Boolean,
-    val isFavorite : Boolean
+    val isFavorite : Boolean,
+    val hasSynced :Boolean
 )

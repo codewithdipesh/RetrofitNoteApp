@@ -14,5 +14,5 @@ interface NoteRepository {
     suspend fun getAllNotes():Result<Flow<List<Note>>,NoteError>
     suspend fun getNoteById(id:Int):Result<Flow<Note>,NoteError>
 
-    suspend fun syncNotes(token:String):Result<Boolean,NoteError>
+    suspend fun syncNotes():Result<Boolean,NoteError>
 }

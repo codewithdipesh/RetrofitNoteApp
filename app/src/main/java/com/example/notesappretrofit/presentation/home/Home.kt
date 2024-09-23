@@ -55,7 +55,7 @@ fun Home(
         LaunchedEffect(Unit){
             val token = viewModel.getToken()
             if (token != null) {
-                viewModel.fetchLocalCache()
+                viewModel.syncNotes(token)
             }
         }
 

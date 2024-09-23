@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -94,6 +95,8 @@ fun NoteCard(
                         )
 
                     } else {
+
+                        Log.d("note_id",note.id.toString())
                         navController.navigate(Screen.AddorEdit.route + "/${note.id}")
                     }
 
@@ -113,7 +116,12 @@ fun NoteCard(
             )
             .background(colorResource(id = R.color.note_bg))
         ){
+            if(!note.hasSynced){
+                Box(modifier= Modifier.align(Alignment.TopStart)){
+                    CircularProgressIndicator()
+                }
 
+            }
             if(showOptions){
                 IconButton(onClick = {
                     onDelete(note.id)
