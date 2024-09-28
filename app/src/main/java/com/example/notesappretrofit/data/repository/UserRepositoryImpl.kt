@@ -4,7 +4,7 @@ package com.example.notesappretrofit.data.repository
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresExtension
-import com.example.notesappretrofit.data.local.token.TokenManager
+import com.example.notesappretrofit.data.local.token.DataAssetManager
 import com.example.notesappretrofit.data.remote.user.UserApi
 import com.example.notesappretrofit.data.remote.user.dto.UserChangePasswordRequest
 import com.example.notesappretrofit.data.remote.user.dto.UserLoginRegisterRequest
@@ -20,7 +20,7 @@ import javax.inject.Inject
 
  class UserRepositoryImpl @Inject constructor(
     private val api : UserApi,
-    private val tokenManager: TokenManager
+    private val dataAssetManager: DataAssetManager
 ):UserRepository {
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
     override suspend fun register(request: UserLoginRegisterRequest): Result<Boolean, UserError> {
@@ -33,7 +33,7 @@ import javax.inject.Inject
                 throw HttpException(Response.error<Any>(result.status, ResponseBody.create(null,"")))
             }
             val token = result.token
-            tokenManager.saveToken(token)
+            dataAssetManager.saveToken(token)
             Result.Success(true)
 
        }catch (e: IOException){
@@ -60,7 +60,7 @@ import javax.inject.Inject
                 throw HttpException(Response.error<Any>(result.status, ResponseBody.create(null,"")))
             }
             val token = result.token
-            tokenManager.saveToken(token)
+            dataAssetManager.saveToken(token)
             Result.Success(true)
 
         }catch (e: IOException){

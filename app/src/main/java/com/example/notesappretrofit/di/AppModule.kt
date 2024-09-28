@@ -1,15 +1,11 @@
 package com.example.notesappretrofit.di
 
 import android.content.Context
-import androidx.compose.ui.platform.LocalContext
 import androidx.room.Room
-import androidx.room.RoomDatabase
-import androidx.work.WorkManager
-import androidx.work.impl.Migration_1_2
 import com.example.notesappretrofit.BuildConfig
 import com.example.notesappretrofit.data.local.dao.NoteDao
 import com.example.notesappretrofit.data.local.database.NoteDatabase
-import com.example.notesappretrofit.data.local.token.TokenManager
+import com.example.notesappretrofit.data.local.token.DataAssetManager
 import com.example.notesappretrofit.data.remote.note.NoteApi
 import com.example.notesappretrofit.data.remote.user.UserApi
 import com.example.notesappretrofit.data.repository.NoteRepositoryImpl
@@ -64,8 +60,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideTokenManager(@ApplicationContext context: Context): TokenManager {
-        return TokenManager(context)
+    fun provideTokenManager(@ApplicationContext context: Context): DataAssetManager {
+        return DataAssetManager(context)
     }
     @Provides
     @Singleton
@@ -77,9 +73,9 @@ object AppModule {
     @Singleton
     fun provideUserRepository(
         api: UserApi,
-        tokenManager: TokenManager
+        dataAssetManager: DataAssetManager
     ):UserRepository{
-        return UserRepositoryImpl(api,tokenManager)
+        return UserRepositoryImpl(api,dataAssetManager)
     }
     @Provides
     @Singleton
@@ -92,9 +88,10 @@ object AppModule {
     fun provideNoteRepository(
         api: NoteApi,
         local:NoteDao,
-        tokenManager: TokenManager
+        localDatabase: NoteDatabase,
+        dataAssetManager: DataAssetManager
     ):NoteRepository{
-        return  NoteRepositoryImpl(api,local,tokenManager)
+        return  NoteRepositoryImpl(api,local,localDatabase,dataAssetManager)
     }
 
 

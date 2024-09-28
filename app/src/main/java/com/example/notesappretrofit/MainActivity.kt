@@ -15,6 +15,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import com.example.notesappretrofit.presentation.add_edit.viewmodel.AddEditViewModel
@@ -26,6 +27,7 @@ import com.example.notesappretrofit.presentation.navigation.Screen
 import com.example.notesappretrofit.presentation.register_login.LoginScreen
 import com.example.notesappretrofit.presentation.register_login.viewmodels.RegisterLoginViewModel
 import com.example.notesappretrofit.ui.theme.NotesAppRetrofitTheme
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -34,6 +36,7 @@ class MainActivity : AppCompatActivity() {
     private val promptManager by lazy {
         BiometricPromptManager(this)
     }
+    @RequiresApi(Build.VERSION_CODES.P)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -44,12 +47,20 @@ class MainActivity : AppCompatActivity() {
             val noteViewModel by viewModels<AddEditViewModel>()
             var isAuthChecked by remember { mutableStateOf(false) }
             var isAuthorized by remember { mutableStateOf(false) }
+            val systemUiController = rememberSystemUiController()
+            systemUiController.isStatusBarVisible = false
+            systemUiController.isNavigationBarVisible = false
             NotesAppRetrofitTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
+                    systemUiController.setSystemBarsColor(
+                        color = colorResource(R.color.background),
+                        darkIcons = false,
+                    )
+
                     if (isAuthChecked) {
                         AppNavigation(
                             navController = navController,

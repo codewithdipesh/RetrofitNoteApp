@@ -15,7 +15,7 @@ interface NoteDao{
     @Query("select * from notes")
     fun getAllNotes():Flow<List<NoteEntity>>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(entity = NoteEntity::class, onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertNote(noteEntity: NoteEntity)
 
     @Query("delete from notes where id=:id")
@@ -27,7 +27,7 @@ interface NoteDao{
     @Query("select * from notes where hasSynced=0 ")
     fun getUnsyncedNotes():Flow<List<NoteEntity>>
 
-    @Insert
+    @Insert(entity = DeletedNoteEntity::class)
     suspend fun insertDeletedNote(deletedNote: DeletedNoteEntity)
 
     @Query("SELECT id FROM deleted_notes") // Assuming you have a DeletedNotesEntity

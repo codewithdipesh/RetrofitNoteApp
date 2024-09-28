@@ -3,19 +3,15 @@ package com.example.notesappretrofit.presentation.add_edit.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.notesappretrofit.data.local.token.TokenManager
+import com.example.notesappretrofit.data.local.token.DataAssetManager
 import com.example.notesappretrofit.data.remote.note.dto.NoteRequest
-import com.example.notesappretrofit.domain.NoteError
 import com.example.notesappretrofit.domain.NoteError.*
 import com.example.notesappretrofit.domain.Result
 import com.example.notesappretrofit.domain.repository.NoteRepository
-import com.example.notesappretrofit.presentation.navigation.AuthViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -23,7 +19,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AddEditViewModel @Inject constructor(
-    private val repository: NoteRepository
+    private val repository: NoteRepository,
+    private val dataAssetManager:DataAssetManager
 ) :ViewModel(){
 
     private val _Uistate = MutableStateFlow<NoteUi>(NoteUi())
@@ -31,6 +28,10 @@ class AddEditViewModel @Inject constructor(
 
     private val _initialDetails = MutableStateFlow<NoteUi>(NoteUi())
     val initialDetails : StateFlow<NoteUi> = _initialDetails.asStateFlow()
+
+    private val _tempCounter = MutableStateFlow<Int>(-1)
+    val tempCounter : StateFlow<Int> = _tempCounter.asStateFlow()
+
 
     fun updateTitle(title: String) {
         _Uistate.update { it.copy(title = title) }
@@ -103,6 +104,12 @@ class AddEditViewModel @Inject constructor(
         }
 
     }
+
+    fun fetchTempCounter(){
+        _tempCounter.value = dataAssetManager.gettempCounter()!!.toInt()
+    }
+
+
     fun updateNoteDetails(id:Int){
         viewModelScope.launch {
                if(checkChangesInDetails()){//if any change in details then update only
@@ -143,6 +150,7 @@ class AddEditViewModel @Inject constructor(
         viewModelScope.launch {
                 val response = repository.createNote(
                     NoteRequest(
+                        id = _tempCounter.value,
                         title =  _Uistate.value.title,
                         description =  _Uistate.value.description,
                         isLocked =  _Uistate.value.isLocked,

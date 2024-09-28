@@ -2,14 +2,11 @@ package com.example.notesappretrofit.presentation.home.viewModel
 
 import android.content.Context
 import android.util.Log
-import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.notesappretrofit.data.local.token.TokenManager
-import com.example.notesappretrofit.data.remote.note.dto.NoteDto
+import com.example.notesappretrofit.data.local.token.DataAssetManager
 import com.example.notesappretrofit.domain.NoteError
 import com.example.notesappretrofit.domain.Result
-import com.example.notesappretrofit.domain.UserError
 import com.example.notesappretrofit.domain.UserError.*
 import com.example.notesappretrofit.domain.entity.Note
 import com.example.notesappretrofit.domain.repository.NoteRepository
@@ -23,7 +20,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.util.Calendar
 import javax.inject.Inject
@@ -33,7 +29,7 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val repository: NoteRepository,
     private val userRepo : UserRepository,
-    private val tokenManager: TokenManager,
+    private val dataAssetManager: DataAssetManager,
     private val connectivityObserver: ConnectivityObserver,
     @ApplicationContext private val context: Context
 ) :ViewModel(){
@@ -77,7 +73,7 @@ class HomeViewModel @Inject constructor(
                 .collect(){status->
                     when(status){
                          Available ->{
-                             val token = tokenManager.getToken()
+                             val token = dataAssetManager.getToken()
                              if(token != null){
                                  Log.d("jwt",token)
                                  val response = userRepo.authenticate(token)
@@ -112,7 +108,11 @@ class HomeViewModel @Inject constructor(
 
 
     fun getToken(): String? {
-        return tokenManager.getToken()
+        return dataAssetManager.getToken()
+    }
+
+    fun getUsername():String?{
+        return dataAssetManager.getUsername()
     }
 
 
@@ -153,7 +153,7 @@ class HomeViewModel @Inject constructor(
                         cachedNotes = it
 
                         setFavNotes()
-                        // Set the greetings
+                        _username.value = dataAssetManager.getUsername()?:""
                         val greetingVal = getGreeting()
                         _greeting.value = greetingVal
                     }
@@ -178,17 +178,23 @@ class HomeViewModel @Inject constructor(
                 fetchLocalCache()
                 isFetched = true
                 isInitiatedNotes = true
-
-                val usernameResponse = userRepo.getUsername(token)
-                if(usernameResponse is Result.Success){
-                    _username.value = usernameResponse.data
+                //if username saved in local data then no sync
+                if(dataAssetManager.getUsername() == null 
+                    || dataAssetManager.getUsername() == ""){
+                    val usernameResponse = userRepo.getUsername(token)
+                    if(usernameResponse is Result.Success){
+                        //fetch and save in local
+                        dataAssetManager.saveUsername(usernameResponse.data)
+                    }
                 }
+
+                _username.value = dataAssetManager.getUsername()?:""
 
             }
         }
     }
     suspend fun refreshNotes() {
-            val token = tokenManager.getToken()
+            val token = dataAssetManager.getToken()
             if (token == null) {
                 //unauthorized
                 _uistate.value = UiState.Unauthorized
@@ -235,7 +241,7 @@ class HomeViewModel @Inject constructor(
                     when(status){
                         Available -> {
                             // Try syncing immediately if network is available
-                            val token = tokenManager.getToken()
+                            val token = dataAssetManager.getToken()
                             if (token != null) {
                                 syncNotes(token)
                             }

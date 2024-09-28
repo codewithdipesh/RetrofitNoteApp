@@ -65,6 +65,7 @@ fun AddEditScreen(
             viewModel.fetchNoteDetails(id.toString())
             Log.d("add_edit screen",state.toString())
         }else{
+            viewModel.fetchTempCounter()
             viewModel.updateTitle("")
             viewModel.updateDescription("")
             viewModel.updateFavorite(false)
