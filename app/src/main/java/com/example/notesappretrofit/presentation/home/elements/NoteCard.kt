@@ -125,6 +125,7 @@ fun NoteCard(
             if(showOptions){
                 IconButton(onClick = {
                     onDelete(note.id)
+                    showOptions = false
                 },
                 modifier = Modifier.align(Alignment.TopEnd)
                 ) {

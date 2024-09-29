@@ -53,6 +53,8 @@ class HomeViewModel @Inject constructor(
     val username : StateFlow<String> = _username.asStateFlow()
 
 
+    private var refreshing = MutableStateFlow(false)
+
 
     private var isInitiatedNotes = false
 
@@ -164,6 +166,9 @@ class HomeViewModel @Inject constructor(
     }
 
      suspend fun syncNotes(token : String){
+         //check another sync is going on or not
+         if(refreshing.value) return
+         refreshing.value = true
 
         val result = repository.syncNotes()
         when(result){
@@ -176,7 +181,7 @@ class HomeViewModel @Inject constructor(
             }
             is Result.Success -> {
                 // Fetch from local cache after sync
-                fetchLocalCache()
+
                 isFetched = true
                 isInitiatedNotes = true
                 //if username saved in local data then no sync
@@ -188,13 +193,16 @@ class HomeViewModel @Inject constructor(
                         dataAssetManager.saveUsername(usernameResponse.data)
                     }
                 }
-
+                fetchLocalCache()
                 _username.value = dataAssetManager.getUsername()?:""
 
             }
         }
+         refreshing.value = false
     }
     suspend fun refreshNotes() {
+            if(refreshing.value) return
+            refreshing.value = true
             val token = dataAssetManager.getToken()
             if (token == null) {
                 //unauthorized
@@ -226,9 +234,8 @@ class HomeViewModel @Inject constructor(
                    fetchLocalCache()
 
                 }
-
-
         }
+        refreshing.value = false
     }
 
     suspend fun deleteNote(id:Int) {
