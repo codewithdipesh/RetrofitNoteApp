@@ -115,6 +115,7 @@ dependencies {
     androidTestImplementation  ("com.google.dagger:hilt-android-testing:2.51.1")
     kaptAndroidTest ("com.google.dagger:hilt-compiler:2.51.1")
     testImplementation ("com.google.dagger:hilt-android-testing:2.51.1")
+    implementation("androidx.hilt:hilt-common:1.2.0")
     //Animation
     implementation("androidx.compose.animation:animation:1.6.8")
     //blur

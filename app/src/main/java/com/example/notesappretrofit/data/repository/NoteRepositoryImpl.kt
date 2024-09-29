@@ -1,8 +1,10 @@
 package com.example.notesappretrofit.data.repository
 
 
+import android.util.Log
 import com.example.notesappretrofit.data.local.dao.NoteDao
 import com.example.notesappretrofit.data.local.database.NoteDatabase
+import com.example.notesappretrofit.data.local.entity.NoteEntity
 import com.example.notesappretrofit.data.local.token.DataAssetManager
 import com.example.notesappretrofit.data.mappers.toDeleteEntity
 import com.example.notesappretrofit.data.mappers.toNote
@@ -38,6 +40,7 @@ import javax.inject.Inject
          return try {
              val noteEntity = request.toNoteEntity().copy(hasSynced = false)
              local.upsertNote(noteEntity)
+             Log.d("createNote",noteEntity.toString())
              Result.Success(noteEntity.toNote())
          } catch (e: Exception) {
              Result.Error(NoteError.UNKNOWN_ERROR)
@@ -63,7 +66,8 @@ import javax.inject.Inject
                  isFavorite = request.isFavorite,
                  isLocked = request.isLocked
              )
-             local.upsertNote(noteEntity)
+             Log.d("upDatedNote",noteEntity.toString())
+             local.updateNote(noteEntity)
              Result.Success(true)
          } catch (e: Exception) {
              Result.Error(NoteError.UNKNOWN_ERROR)
@@ -74,7 +78,9 @@ import javax.inject.Inject
          return try {
              val existingNote = local.getNoteById(noteId).firstOrNull()
                  ?:return Result.Error(NoteError.NOTE_NOT_FOUND)
+             //save in deleted cache
              local.insertDeletedNote(existingNote.toDeleteEntity())
+             //delete from local
              local.deleteNote(noteId)
              Result.Success(true)
          } catch (e: Exception) {
@@ -110,46 +116,53 @@ import javax.inject.Inject
             val token = dataAssetManager.getToken()?: return Result.Error(NoteError.UNAUTHORIZED)
             val unsyncedNotes = local.getUnsyncedNotes().first()
              for (note in unsyncedNotes) {
+                 Log.d("SyncNotes",note.toString())
                  if (note.id < 0) {//negative temp id
                      //new note
                      val response = api.createNote(note.toNoteRequest(), token)
                      val updatedNote = note.copy(id = response.noteDetails.id, hasSynced = true)
-                     local.upsertNote(updatedNote)
+                     local.updateNote(updatedNote)
                  } else {
                      // Existing note
                      api.updateNote(note.toNoteRequest(), note.id.toString(), token)
                      val updatedNote = note.copy(hasSynced = true)
-                     local.upsertNote(updatedNote)
+                     local.updateNote(updatedNote)
                  }
              }
              val deletedNotes = local.getDeletedNotes().first()
              for(note in deletedNotes){
+                 //delete from remote
                api.deleteNote(id = note.toString(),token= token)
+                 //delte from local delted cache
                local.deleteDeletedNote(note)
              }
-
+             //remote notes and local notes
              val remoteNotes = api.getAllNotes(token).notes
-
              val localNotes = local.getAllNotes().first()
 
-             val notesToInsert = remoteNotes.filter { remote ->
-                 localNotes.none { local -> local.id == remote.id }
-             }
-             val notesToUpdate = remoteNotes.filter { remote ->
-                 localNotes.any { local ->
-                     local.id == remote.id
-                             &&
-                     (local.title != remote.title || local.description != remote.description
-                     || local.isLocked != remote.isLocked || local.isFavorite != remote.isFavorite)
+             // Prepare lists for batch operations
+             val notesToInsert = mutableListOf<NoteEntity>()
+             val notesToUpdate = mutableListOf<NoteEntity>()
+             val idsToDelete = mutableListOf<Int>()
+
+             remoteNotes.forEach { remote ->
+                 val localNote = localNotes.find { it.id == remote.id }
+                 if (localNote == null) {
+                     notesToInsert.add(remote.toNoteEntity())
+                 } else if (remote.toNoteEntity() != localNote) {
+                     notesToUpdate.add(remote.toNoteEntity())
                  }
              }
-             val notesToDelete = localNotes.filter { local ->
-                 remoteNotes.none { remote -> remote.id == local.id }
+             localNotes.forEach { local ->
+                 if (remoteNotes.none { it.id == local.id }) {
+                     idsToDelete.add(local.id)
+                 }
              }
+             //patch operation
+             local.upsertNotes(notesToInsert + notesToUpdate)
+             //delete which are deleted already in remote but not in local
+             local.deleteNotesByIds(idsToDelete)
 
-             notesToInsert.forEach { local.upsertNote(it.toNoteEntity()) }
-             notesToUpdate.forEach { local.upsertNote(it.toNoteEntity()) }
-             notesToDelete.forEach { local.deleteNote(it.id) }
              return Result.Success(true)
          } catch (e: IOException) {
              return Result.Error(NoteError.NETWORK_ERROR)

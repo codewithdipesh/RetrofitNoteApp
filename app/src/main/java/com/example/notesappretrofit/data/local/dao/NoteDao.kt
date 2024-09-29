@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.example.notesappretrofit.data.local.entity.DeletedNoteEntity
 import com.example.notesappretrofit.data.local.entity.NoteEntity
 import kotlinx.coroutines.flow.Flow
@@ -18,14 +19,26 @@ interface NoteDao{
     @Insert(entity = NoteEntity::class, onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertNote(noteEntity: NoteEntity)
 
+    @Update(entity = NoteEntity::class, onConflict = OnConflictStrategy.REPLACE)
+    suspend fun updateNote(noteEntity: NoteEntity)
+
+    @Insert(entity = NoteEntity::class, onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsertNotes(noteEntity: List<NoteEntity>)
+
     @Query("delete from notes where id=:id")
     suspend fun deleteNote(id: Int):Int
+
+    @Query("DELETE FROM notes WHERE id IN (:ids)")
+    suspend fun deleteNotesByIds(ids: List<Int>)
 
     @Query("select * from notes where id=:id")
     fun getNoteById(id:Int):Flow<NoteEntity>
 
     @Query("select * from notes where hasSynced=0 ")
     fun getUnsyncedNotes():Flow<List<NoteEntity>>
+
+    @Query("UPDATE notes SET hasSynced = 1 WHERE id = :id")
+    suspend fun markNoteAsSynced(id: Int)
 
     @Insert(entity = DeletedNoteEntity::class)
     suspend fun insertDeletedNote(deletedNote: DeletedNoteEntity)

@@ -1,5 +1,6 @@
 package com.example.notesappretrofit.presentation.home
 import android.os.Build
+import android.provider.ContactsContract.Data
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -18,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
+import com.example.notesappretrofit.data.local.token.DataAssetManager
 import com.example.notesappretrofit.presentation.home.elements.AnimatedShimmer
 import com.example.notesappretrofit.presentation.home.elements.BiometricPromptManager
 import com.example.notesappretrofit.presentation.home.elements.ConnectionLostScreen
@@ -37,7 +39,6 @@ fun Home(
     authViewModel: AuthViewModel,
     navController: NavController,
     promptManager:BiometricPromptManager
-
 ) {
     
     val uistate by viewModel.uiState.collectAsState()
@@ -54,9 +55,10 @@ fun Home(
         //fetching the data
         LaunchedEffect(Unit){
             val token = viewModel.getToken()
-            if (token != null) {
+            if(token!= null) {
                 viewModel.syncNotes(token)
             }
+            viewModel.fetchLocalCache()
         }
 
         LaunchedEffect(uistate){

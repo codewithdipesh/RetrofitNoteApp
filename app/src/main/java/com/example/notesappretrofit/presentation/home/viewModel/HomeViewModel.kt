@@ -149,6 +149,7 @@ class HomeViewModel @Inject constructor(
                 }
                 is Result.Success -> {
                     result.data.collect{
+                        Log.d("localfetched",it.toString())
                         _notes.value = it
                         cachedNotes = it
 
@@ -236,22 +237,6 @@ class HomeViewModel @Inject constructor(
             val result = repository.deleteNote(id)
             if (result is Result.Success) {
                 fetchLocalCache() // Refresh local cache to show updated data
-                // Check if network is available
-                connectivityObserver.observer().collect{status->
-                    when(status){
-                        Available -> {
-                            // Try syncing immediately if network is available
-                            val token = dataAssetManager.getToken()
-                            if (token != null) {
-                                syncNotes(token)
-                            }
-                        }
-                        Unavailable,Lost -> {
-                            _uistate.value = UiState.NoInternet
-                        }
-                    }
-
-                }
             }
         }
     }
