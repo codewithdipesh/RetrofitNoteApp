@@ -19,18 +19,19 @@ fun NoteDto.toNoteEntity(): NoteEntity{
     )
 }
 
-fun NoteEntity.toNote():Note{
-    return Note(
-        id = id,
-        createdAt = createdAt,
-        description = description,
-        title = title ,
-        isLocked = isLocked,
-        isFavorite= isFavorite,
-        hasSynced = hasSynced
-    )
+fun NoteEntity?.toNote(): Note? {
+    return this?.let { noteEntity ->
+        Note(
+            id = noteEntity.id,
+            createdAt = noteEntity.createdAt,
+            description = noteEntity.description,
+            title = noteEntity.title,
+            isLocked = noteEntity.isLocked,
+            isFavorite = noteEntity.isFavorite,
+            hasSynced = noteEntity.hasSynced
+        )
+    }
 }
-
 fun NoteRequest.toNoteEntity():NoteEntity{
     return NoteEntity(
         id = id,

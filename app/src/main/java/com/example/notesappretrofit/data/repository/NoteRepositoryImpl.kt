@@ -41,7 +41,7 @@ import javax.inject.Inject
              val noteEntity = request.toNoteEntity().copy(hasSynced = false)
              local.upsertNote(noteEntity)
              Log.d("createNote",noteEntity.toString())
-             Result.Success(noteEntity.toNote())
+             Result.Success(noteEntity.toNote()!!)
          } catch (e: Exception) {
              Result.Error(NoteError.UNKNOWN_ERROR)
          }
@@ -96,7 +96,7 @@ import javax.inject.Inject
              val notes = local.getAllNotes().map {
                  entities ->
                      entities.map {
-                         it.toNote()
+                         it.toNote()!!
                          }
                  }
              Result.Success(notes)
@@ -107,7 +107,7 @@ import javax.inject.Inject
 
      override  fun getNoteById(id: Int): Result<Flow<Note>, NoteError> {
          return try {
-             val note = local.getNoteById(id).map { it.toNote() }
+             val note = local.getNoteById(id).map { it.toNote()!! }
              Result.Success(note)
          } catch (e: Exception) {
              Result.Error(NoteError.UNKNOWN_ERROR)
