@@ -79,9 +79,12 @@ import javax.inject.Inject
              val existingNote = local.getNoteById(noteId).firstOrNull()
                  ?:return Result.Error(NoteError.NOTE_NOT_FOUND)
              //save in deleted cache
-             local.insertDeletedNote(existingNote.toDeleteEntity())
-             //delete from local
-             local.deleteNote(noteId)
+             if(existingNote != null){
+                 local.insertDeletedNote(existingNote.toDeleteEntity())
+                 //delete from local
+                 local.deleteNote(noteId)
+             }
+
              Result.Success(true)
          } catch (e: Exception) {
              Result.Error(NoteError.UNKNOWN_ERROR)
@@ -124,6 +127,7 @@ import javax.inject.Inject
                      local.updateNote(updatedNote)
                  } else {
                      // Existing note
+                     Log.d("SyncNotes",note.toNoteRequest().toString())
                      api.updateNote(note.toNoteRequest(), note.id.toString(), token)
                      val updatedNote = note.copy(hasSynced = true)
                      local.updateNote(updatedNote)
@@ -174,6 +178,7 @@ import javax.inject.Inject
      }
 
      private fun handleHttpException(e: HttpException): Result<Boolean, NoteError> {
+         Log.d("home output",e.message!! +" "+e.stackTrace + e.toString())
          return when (e.code()) {
              401, 403 -> Result.Error(NoteError.UNAUTHORIZED)
              400 -> Result.Error(NoteError.INVALID_INPUT)

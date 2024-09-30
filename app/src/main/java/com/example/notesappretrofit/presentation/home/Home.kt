@@ -55,6 +55,7 @@ fun Home(
         //fetching the data
         LaunchedEffect(Unit){
             val token = viewModel.getToken()
+            Log.d("home",token?:"")
             if(token!= null) {
                 viewModel.syncNotes(token)
             }

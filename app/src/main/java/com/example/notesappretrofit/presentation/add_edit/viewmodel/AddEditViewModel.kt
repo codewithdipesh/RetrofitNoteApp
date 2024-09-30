@@ -8,6 +8,7 @@ import com.example.notesappretrofit.data.remote.note.dto.NoteRequest
 import com.example.notesappretrofit.domain.NoteError.*
 import com.example.notesappretrofit.domain.Result
 import com.example.notesappretrofit.domain.repository.NoteRepository
+import com.example.notesappretrofit.presentation.home.viewModel.HomeViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,6 +21,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AddEditViewModel @Inject constructor(
     private val repository: NoteRepository,
+    private val noteRepository: NoteRepository,
     private val dataAssetManager:DataAssetManager
 ) :ViewModel(){
 
@@ -32,6 +34,7 @@ class AddEditViewModel @Inject constructor(
     private val _tempCounter = MutableStateFlow<Int>(-1)
     val tempCounter : StateFlow<Int> = _tempCounter.asStateFlow()
 
+    private val token = dataAssetManager.getToken()?:""
 
     fun updateTitle(title: String) {
         _Uistate.update { it.copy(title = title) }
@@ -125,7 +128,7 @@ class AddEditViewModel @Inject constructor(
                    )
                    when(response){
                        is Result.Success -> {
-
+                           noteRepository.syncNotes()
                        }
                        is Result.Error ->{
                            Log.d("update error",response.toString())
@@ -160,8 +163,7 @@ class AddEditViewModel @Inject constructor(
                 )
                 when(response){
                     is Result.Success -> {
-
-                       //TODO
+//                        noteRepository.syncNotes()
                     }
                     is Result.Error ->{
                         //TODO

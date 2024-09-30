@@ -61,11 +61,10 @@ class HomeViewModel @Inject constructor(
     private var isFetched = false
         private set
     init {
-        observeNetwork()
         viewModelScope.launch {
             fetchLocalCache()
         }
-
+        observeNetwork()
     }
 
 
@@ -243,7 +242,7 @@ class HomeViewModel @Inject constructor(
             // Save note locally first
             val result = repository.deleteNote(id)
             if (result is Result.Success) {
-                fetchLocalCache() // Refresh local cache to show updated data
+                refreshNotes() // Refresh local cache to show updated data
             }
         }
     }
