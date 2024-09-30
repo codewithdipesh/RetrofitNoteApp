@@ -91,7 +91,7 @@ import javax.inject.Inject
          }
      }
 
-     override suspend fun getAllNotes(): Result<Flow<List<Note>>, NoteError> {
+     override  fun getAllNotes(): Result<Flow<List<Note>>, NoteError> {
          return try {
              val notes = local.getAllNotes().map {
                  entities ->
@@ -105,7 +105,7 @@ import javax.inject.Inject
          }
      }
 
-     override suspend fun getNoteById(id: Int): Result<Flow<Note>, NoteError> {
+     override  fun getNoteById(id: Int): Result<Flow<Note>, NoteError> {
          return try {
              val note = local.getNoteById(id).map { it.toNote() }
              Result.Success(note)

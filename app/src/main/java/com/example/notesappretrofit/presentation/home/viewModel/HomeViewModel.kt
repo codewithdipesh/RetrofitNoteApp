@@ -2,6 +2,7 @@ package com.example.notesappretrofit.presentation.home.viewModel
 
 import android.content.Context
 import android.util.Log
+import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.notesappretrofit.data.local.token.DataAssetManager
@@ -61,12 +62,16 @@ class HomeViewModel @Inject constructor(
     private var isFetched = false
         private set
     init {
-        viewModelScope.launch {
-            fetchLocalCache()
-        }
+        loadHomeData()
+        fetchLocalCache()
         observeNetwork()
     }
 
+    private fun loadHomeData(){
+        _username.value = dataAssetManager.getUsername()?:""
+        val greetingVal = getGreeting()
+        _greeting.value = greetingVal
+    }
 
     private fun observeNetwork(){
         viewModelScope.launch {
@@ -141,26 +146,26 @@ class HomeViewModel @Inject constructor(
          Log.d("search",_notes.value.toString())
     }
 
-    suspend fun fetchLocalCache(){
-        viewModelScope.launch {
-            val result = repository.getAllNotes()
-            when(result){
-                is Result.Error ->{
-                   UiState.Error("Something went wrong in Local cache")
-                }
-                is Result.Success -> {
-                    result.data.collect{
-                        Log.d("localfetched",it.toString())
-                        _notes.value = it
-                        cachedNotes = it
+     fun fetchLocalCache(){
+         viewModelScope.launch {
+             val result = repository.getAllNotes()
+             when(result){
+                 is Result.Error ->{
+                     UiState.Error("Something went wrong in Local cache")
+                 }
+                 is Result.Success -> {
+                     result.data.collect{
+                         Log.d("localfetched",it.toString())
+                         _notes.value = it
+                         cachedNotes = it
 
-                        setFavNotes()
-                        _username.value = dataAssetManager.getUsername()?:""
-                        val greetingVal = getGreeting()
-                        _greeting.value = greetingVal
-                    }
-                }
-            }
+                         setFavNotes()
+                     }
+
+
+                 }
+         }
+
         }
     }
 

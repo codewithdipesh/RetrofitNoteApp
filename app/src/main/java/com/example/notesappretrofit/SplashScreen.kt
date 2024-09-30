@@ -10,6 +10,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.notesappretrofit.presentation.home.viewModel.HomeViewModel
 import com.example.notesappretrofit.presentation.navigation.AuthViewModel
 import com.example.notesappretrofit.presentation.register_login.viewmodels.RegisterLoginViewModel
 import kotlinx.coroutines.delay
@@ -17,7 +18,8 @@ import kotlinx.coroutines.delay
 @Composable
 fun SplashScreen(
     onAuthCheckComplete: (Boolean) -> Unit,
-    authViewModel: AuthViewModel
+    authViewModel: AuthViewModel,
+    homeViewModel: HomeViewModel
 ) {
     val viewModel: RegisterLoginViewModel = hiltViewModel()
     val isAuthorized by authViewModel.isAuthorized.collectAsState()
@@ -28,6 +30,9 @@ fun SplashScreen(
         // Wait until the check is complete
         // Adjust this delay if needed
         delay(1000)
+        if(isAuthorized){
+            homeViewModel.fetchLocalCache()
+        }
         onAuthCheckComplete(isAuthorized)
     }
 

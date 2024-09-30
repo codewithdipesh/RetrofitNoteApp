@@ -11,8 +11,8 @@ interface NoteRepository {
     suspend fun createNote(request : NoteRequest) : Result<Note,NoteError>
     suspend fun updateNote(request : NoteRequest,noteId: Int) : Result<Boolean,NoteError>
     suspend fun deleteNote(noteId: Int) : Result<Boolean,NoteError>
-    suspend fun getAllNotes():Result<Flow<List<Note>>,NoteError>
-    suspend fun getNoteById(id:Int):Result<Flow<Note>,NoteError>
+    fun getAllNotes():Result<Flow<List<Note>>,NoteError>
+    fun getNoteById(id:Int):Result<Flow<Note>,NoteError>
     suspend fun deleteAllData()
 
     suspend fun syncNotes():Result<Boolean,NoteError>

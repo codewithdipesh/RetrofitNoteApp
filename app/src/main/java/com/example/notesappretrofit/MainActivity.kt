@@ -77,7 +77,8 @@ class MainActivity : AppCompatActivity() {
                             onAuthCheckComplete = { authStatus ->
                                 isAuthChecked = true
                                 isAuthorized = authStatus
-                            }
+                            },
+                            homeViewModel = homeViewModel
                         )
                     }
 
